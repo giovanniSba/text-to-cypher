@@ -1,6 +1,6 @@
 from langgraph.graph import END
 
-from src.agent.state import AgentState
+from src.graph.state import AgentState
 
 MAX_ATTEMPS = 3
 

@@ -1,0 +1,23 @@
+<Query> ::= <MatchClause> { <MatchClause> } <ReturnClause>
+
+<MatchClause> ::= [ "OPTIONAL" ] "MATCH" <Pattern> [ <WhereClause> ]
+<Pattern> ::= <PatternPart> { "," <PatternPart> }
+<PatternPart> ::= [ <Variable> "=" ] <AnonymousPatternPart>
+<AnonymousPatternPart> ::= <NodePattern> { <RelationshipPattern> <NodePattern> }
+<NodePattern> ::= "(" [ <Variable> ] [ <NodeLabels> ] [ <Properties> ] ")"
+<NodeLabels> ::= ":" <LabelName> { ":" <LabelName> }
+<Properties> ::= "{" <PropertyKeyName> ":" <Expression> { "," <PropertyKeyName> ":" <Expression> } "}"
+<RelationshipPattern> ::= "-" [ <RelationshipDetail> ] "-"
+                        | "<-" [ <RelationshipDetail> ] "-"
+                        | "-" [ <RelationshipDetail> ] "->"
+<RelationshipDetail> ::= "[" [ <Variable> ] [ <RelationshipTypes> ] [ <Properties> ] "]"
+<RelationshipTypes> ::= ":" <RelTypeName> { "|" <RelTypeName> }
+<WhereClause> ::= "WHERE" <Expression>
+<ReturnClause> ::= "RETURN" [ "DISTINCT" ] <ReturnItems> [ <OrderClause> ] [ <SkipClause> ] [ <LimitClause> ]
+<ReturnItems> ::= "*" | <ReturnItem> { "," <ReturnItem> }
+<ReturnItem> ::= <Expression> [ "AS" <Variable> ]
+<OrderClause> ::= "ORDER BY" <SortItem> { "," <SortItem> }
+<SortItem> ::= <Expression> [ "ASC" | "ASCENDING" | "DESC" | "DESCENDING" ]
+<SkipClause> ::= "SKIP" <Expression>
+<LimitClause> ::= "LIMIT" <Expression>
+<Expression> ::= <LogicExpression> | <ComparisonExpression> | <MathExpression> | <StringExpression> | <FunctionCall> | <Variable> | <Literal>
