@@ -1,24 +1,22 @@
-import textwrap
+from pathlib import Path
 from string import Template
-from typing import Any
+from typing import Any, cast
 
-from langchain.agents import create_agent
-from langchain.agents.middleware.types import AgentState, ResponseT
-from langchain.chat_models.base import init_chat_model
-from langchain_core.messages.human import HumanMessage
+from dotenv.main import logger
 from langchain_core.prompts import (
     ChatPromptTemplate,
     HumanMessagePromptTemplate,
-    PromptTemplate,
     SystemMessagePromptTemplate,
 )
-from langgraph.graph.state import CompiledStateGraph, Runnable
+from langgraph.graph.state import Runnable
 from pydantic import BaseModel
 
 from src.model.model import model
 
 
 class TranslateRequest(BaseModel):
+    """Translation request model."""
+
     instruction: str
     retrieved_examples: list[Any]
     retrieved_entities: list[Any]
@@ -27,27 +25,51 @@ class TranslateRequest(BaseModel):
 class TranslatorAgent:
     """Text-to-cypher translator agent."""
 
-    _system_prompt: str
-    _lang_syntax: str
-    _model: Runnable
+    _system_prompt: str  # fixed system prompt
+    _lang_syntax: str  # syntax lang
+    _model: Runnable  # llm model
 
-    def __init__(self):
+    def __init__(
+        self,
+        system_prompt_path: Path,
+        model,
+    ):
         """Create a translator for text to cypher."""
-        # retrieve system prompt
-        system_prompt_template = ""
-        with open("translator_system_prompt.txt", encoding="utf-8") as f:
-            system_prompt_template = f.read()
-
-        self._lang_syntax = ""
-        with open("syntax_placeholder.txt", encoding="utf-8") as f:
-            self._lang_syntax = f.read()
-
-        template = Template(system_prompt_template)
-        self._system_prompt = template.substitute(lang_syntax=self._lang_syntax)
-
         self._model = model
+        self._lang_syntax = ""
+        self._system_prompt = ""
+
+        prompt_file = Path(system_prompt_path)
+        syntax_file = Path("syntax_placeholder.txt")
+
+        if not prompt_file.is_file():
+            logger.error(f"Il file di prompt non esiste o non è valido: {prompt_file}")
+            raise FileNotFoundError(f"Impossibile trovare {prompt_file}")
+
+        if not syntax_file.is_file():
+            logger.error(
+                f"Il file di sintassi non esiste o non è valido: {syntax_file}"
+            )
+            raise FileNotFoundError(f"Impossibile trovare {syntax_file}")
+
+        try:
+            system_prompt_template = prompt_file.read_text(encoding="utf-8")
+        except Exception as e:
+            logger.error(f"Errore durante la lettura di {prompt_file}: {e}")
+            raise
+
+        try:
+            self._lang_syntax = syntax_file.read_text(encoding="utf-8")
+        except Exception as e:
+            logger.error(f"Errore durante la lettura di {syntax_file}: {e}")
+            raise
+
+        # inject lang syntax
+        template = Template(system_prompt_template)
+        self._system_prompt = template.safe_substitute(lang_syntax=self._lang_syntax)
 
     def translate(self, translate_request: TranslateRequest):
+        """Translate text-to-cypher function."""
         system_message_prompt = SystemMessagePromptTemplate.from_template(
             self._system_prompt, template_format="jinja2"
         )
@@ -61,6 +83,8 @@ class TranslatorAgent:
         )
 
         translator_chain = request_prompt_template | self._model
-        response = translator_chain.invoke(translate_request)
+
+        # format system prompt with entities and examples and pass the result to the llm
+        response = translator_chain.invoke(cast(dict[str, Any], translate_request))
 
         return response
