@@ -4,14 +4,15 @@ from dotenv import load_dotenv
 from IPython.display import Image, display
 
 from src.graph.graph import build_graph
-from src.graph.state import GraphState, create_init_state
+from src.graph.state import create_init_state
 
 load_dotenv()
 
 
 def main():
     """Entry point."""
-    init_state = create_init_state("Trova tutti i clienti")
+    instruction = input("You: ")
+    init_state = create_init_state(instruction)
 
     print("Avvio del grafo...")
 

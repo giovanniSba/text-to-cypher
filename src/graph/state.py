@@ -1,6 +1,19 @@
 from dataclasses import dataclass
 from typing import Any, TypedDict, cast
 
+from pydantic import BaseModel, Field
+
+
+class QueryExample(TypedDict):
+    instruction: str
+    expected: str
+
+
+class EntitiesOutput(BaseModel):
+    entities: list[str] = Field(
+        description="Una lista di entità rilevanti estratte dal testo"
+    )
+
 
 @dataclass
 class GraphState(TypedDict):
@@ -8,8 +21,8 @@ class GraphState(TypedDict):
 
     instruction: str  # user input
     generated_cyper: str  # translated query
-    retrieved_entities: list[Any]  # entities structure TBD
-    retrieved_examples: list[Any]  # example structure TBD
+    retrieved_entities: EntitiesOutput  # entities structure TBD
+    retrieved_examples: list[QueryExample]  # example structure TBD
     db_error_msg: str
     is_valid: bool
     retry_count: int

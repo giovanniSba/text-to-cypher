@@ -3,6 +3,7 @@ from string import Template
 from typing import Any, cast
 
 from dotenv.main import logger
+from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.prompts import (
     ChatPromptTemplate,
     HumanMessagePromptTemplate,
@@ -10,8 +11,6 @@ from langchain_core.prompts import (
 )
 from langgraph.graph.state import Runnable
 from pydantic import BaseModel
-
-from src.model.model import model
 
 
 class TranslateRequest(BaseModel):
@@ -27,7 +26,7 @@ class TranslatorAgent:
 
     _system_prompt: str  # fixed system prompt
     _lang_syntax: str  # syntax lang
-    _model: Runnable  # llm model
+    _model: BaseChatModel  # llm model
 
     def __init__(
         self,

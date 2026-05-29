@@ -3,16 +3,11 @@ from langchain_core.example_selectors import SemanticSimilarityExampleSelector
 from langgraph.graph.message import TypedDict
 
 from model.model import embeddings_model
-from src.graph.state import GraphState
+from src.graph.state import GraphState, QueryExample
 
 vectorstore = Chroma(
     persist_directory="./training_examples_db", embedding_function=embeddings_model
 )
-
-
-class QueryExample(TypedDict):
-    instruction: str
-    expected: str
 
 
 def examples_retriever(state: GraphState) -> dict:
