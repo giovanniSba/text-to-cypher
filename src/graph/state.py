@@ -1,9 +1,9 @@
 from dataclasses import dataclass
-from typing import Any, TypedDict
+from typing import Any, TypedDict, cast
 
 
 @dataclass
-class AgentState(TypedDict):
+class GraphState(TypedDict):
     """Input state for the agent."""
 
     instruction: str  # user input
@@ -13,3 +13,10 @@ class AgentState(TypedDict):
     db_error_msg: str
     is_valid: bool
     retry_count: int
+
+
+def create_init_state(instruction: str) -> GraphState:
+    """Return the init state."""
+    init_state = {"instruction": instruction, "retry_count": 0}
+
+    return cast(GraphState, init_state)

@@ -20,7 +20,7 @@ from src.graph.nodes.db_validator import db_validator
 from src.graph.nodes.entities_retriever import entities_retriever
 from src.graph.nodes.examples_retriever import examples_retriever
 from src.graph.nodes.router import validator_router
-from src.graph.state import AgentState
+from src.graph.state import GraphState
 
 
 class Context(TypedDict):
@@ -29,9 +29,9 @@ class Context(TypedDict):
     my_configurable_param: str
 
 
-def build_graph() -> CompiledStateGraph[AgentState, Any]:
+def build_graph() -> CompiledStateGraph[GraphState, Any]:
     """Return a compiled graph."""
-    builder = StateGraph(AgentState, context_schema=Context)
+    builder = StateGraph(GraphState, context_schema=Context)
     builder.add_node("entities_retriever", entities_retriever)
     builder.add_node("examples_retriever", examples_retriever)
     builder.add_node("cypher_generator", cypher_generator)

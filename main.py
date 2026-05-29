@@ -4,26 +4,20 @@ from dotenv import load_dotenv
 from IPython.display import Image, display
 
 from src.graph.graph import build_graph
-from src.graph.state import AgentState
+from src.graph.state import GraphState, create_init_state
 
 load_dotenv()
 
 
 def main():
     """Entry point."""
-    initial_state = {
-        "instruction": "Mostrami tutti i clienti di Milano",
-        "retry_count": 0,
-        "is_valid": True,
-    }
-
-    initial_state = cast(AgentState, {})
+    init_state = create_init_state("Trova tutti i clienti")
 
     print("Avvio del grafo...")
 
     graph = build_graph()
 
-    final_state = graph.invoke(initial_state)
+    final_state = graph.invoke(init_state)
 
     print("\n--- STATO FINALE ---")
     print(final_state)
