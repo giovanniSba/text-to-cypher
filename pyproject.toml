@@ -1,9 +1,9 @@
 [project]
-name = "agent"
+name = "text-to-cypher-translator"
 version = "0.0.1"
-description = "Starter template for making a new agent LangGraph."
+description = "Text-to-cypher translator"
 authors = [
-    { name = "William Fu-Hinthorn", email = "13333726+hinthornw@users.noreply.github.com" },
+    { name = "Giovanni Sbalchiero", email = "giovanni.sbalchiero@ikmail.com" },
 ]
 readme = "README.md"
 license = { text = "MIT" }
@@ -17,10 +17,6 @@ dependencies = [
     "langsmith>=0.8.6",
     "python-dotenv>=1.0.1",
 ]
-
-
-[project.optional-dependencies]
-dev = ["mypy>=1.11.1", "ruff>=0.6.1"]
 
 [build-system]
 requires = ["setuptools>=73.0.0", "wheel"]
@@ -56,7 +52,6 @@ convention = "google"
 [dependency-groups]
 dev = [
     "anyio>=4.7.0",
-    "langgraph-cli[inmem]>=0.4.14",
     "mypy>=1.13.0",
     "pytest>=8.3.5",
     "ruff>=0.8.2",

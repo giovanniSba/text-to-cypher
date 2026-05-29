@@ -22,7 +22,10 @@ def main():
     print("\n--- STATO FINALE ---")
     print(final_state)
 
-    display(Image(graph.get_graph().draw_mermaid_png()))
+    # generate graph png image
+    png_data = graph.get_graph().draw_mermaid_png()
+    with open("grafo.png", "wb") as f:
+        f.write(png_data)
 
 
 if __name__ == "__main__":

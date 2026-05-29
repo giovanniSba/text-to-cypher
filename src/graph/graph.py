@@ -37,8 +37,8 @@ def build_graph() -> CompiledStateGraph[GraphState, Any]:
     builder.add_node("cypher_generator", cypher_generator)
     builder.add_node("db_validator", db_validator)
 
-    builder.add_edge(START, "examples_retriever")
-    builder.add_edge("entities_retriever", "cypher_generator")
+    builder.add_edge(START, "entities_retriever")
+    builder.add_edge("entities_retriever", "examples_retriever")
     builder.add_edge("examples_retriever", "cypher_generator")
     builder.add_edge("cypher_generator", "db_validator")
     builder.add_conditional_edges("db_validator", validator_router)
