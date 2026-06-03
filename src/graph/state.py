@@ -1,5 +1,4 @@
-from dataclasses import dataclass
-from typing import Any, TypedDict, cast
+from typing import TypedDict, cast
 
 from pydantic import BaseModel, Field
 
@@ -44,22 +43,38 @@ class CypherTranslation(BaseModel):
     )
 
 
-@dataclass
+class Attempt(BaseModel):
+    generated_cypher: CypherTranslation = Field(
+        description="Query cypher generata per instruction"
+    )
+    db_error: str = Field(description="Errore generato dalla validazione su database")
+
+
+class AttemptsRecord(BaseModel):
+    instruction: str = Field(description="Testo naturale da convertire in query cypher")
+    attempts: list[Attempt] = Field(
+        description="Tentativi di traduzione eseguiti per instruction"
+    )
+
+
 class GraphState(TypedDict):
     """Input state for the agent."""
 
     instruction: str  # user input
-    generated_cyper: CypherTranslation  # translated query
-    retrieved_entities: Entities
-    retrieved_examples: Examples
-    retrieved_schema: DBSchema
-    db_error_msg: str
-    is_valid: bool
+    generated_cypher: CypherTranslation | None  # translated query
+    validated_cypher: CypherTranslation | None
+    final_error: str | None
+    retrieved_entities: Entities | None
+    retrieved_examples: Examples | None
+    retrieved_schema: DBSchema | None
+    attempts: AttemptsRecord
+    is_valid: bool | None
     retry_count: int
 
 
 def create_init_state(instruction: str) -> GraphState:
     """Return the init state."""
-    init_state = {"instruction": instruction, "retry_count": 0}
+    attempts = AttemptsRecord(instruction=instruction, attempts=[])
+    init_state = {"instruction": instruction, "retry_count": 0, "attempts": attempts}
 
     return cast(GraphState, init_state)

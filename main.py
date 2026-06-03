@@ -1,5 +1,3 @@
-from typing import cast
-
 from dotenv import load_dotenv
 from IPython.display import Image, display
 
@@ -20,6 +18,9 @@ def main():
 
     print("\n--- FINAL STATE ---")
     print(final_state)
+
+    print("\n\n\n==========================")
+    print(f"{final_state['generated_cypher']}\nretry: {final_state['retry_count']}")
 
     # generate graph png image
     # png_data = graph.get_graph().draw_mermaid_png()

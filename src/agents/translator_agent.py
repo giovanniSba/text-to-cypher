@@ -12,7 +12,12 @@ from langchain_core.prompts import (
 from langgraph.graph.state import Runnable
 from pydantic import BaseModel
 
-from graph.state import CypherTranslation, DBSchema, Examples
+from src.graph.state import (
+    AttemptsRecord,
+    CypherTranslation,
+    DBSchema,
+    Examples,
+)
 
 
 class TranslateRequest(BaseModel):
@@ -21,6 +26,7 @@ class TranslateRequest(BaseModel):
     instruction: str
     retrieved_examples: Examples
     retrieved_schema: DBSchema
+    attempts: AttemptsRecord
 
 
 class TranslatorAgent:
@@ -69,15 +75,25 @@ class TranslatorAgent:
         template = Template(system_prompt_template)
         self._system_prompt = template.safe_substitute(lang_syntax=self._lang_syntax)
 
-    def translate(self, translate_request: TranslateRequest) -> CypherTranslation:
+    def translate(
+        self,
+        translate_request: TranslateRequest,
+    ) -> CypherTranslation:
         """Translate text-to-cypher function."""
         system_message_prompt = SystemMessagePromptTemplate.from_template(
             self._system_prompt, template_format="jinja2"
         )
 
-        human_message_prompt = HumanMessagePromptTemplate.from_template(
-            "Traduci: {{instruction}}", template_format="jinja2"
-        )
+        attempts_record = translate_request.attempts
+        if not attempts_record.attempts:
+            human_message_prompt = HumanMessagePromptTemplate.from_template(
+                "Traduci: {{instruction}}", template_format="jinja2"
+            )
+        else:
+            human_message_prompt = HumanMessagePromptTemplate.from_template(
+                "Riprova a tradurre '{{instruction}}', in precedenza hai prodotto i seguenti tentativi: \n {{attempts}}",
+                template_format="jinja2",
+            )
 
         request_prompt_template = ChatPromptTemplate.from_messages(
             [system_message_prompt, human_message_prompt]
@@ -87,6 +103,6 @@ class TranslatorAgent:
         translator_chain = request_prompt_template | structured_model
 
         # format system prompt with entities and examples and pass the result to the llm
-        response = translator_chain.invoke(cast(dict[str, Any], translate_request))
+        response = translator_chain.invoke(translate_request.model_dump())
 
         return cast(CypherTranslation, response)
