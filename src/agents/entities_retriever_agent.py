@@ -10,7 +10,7 @@ from langchain_core.runnables.passthrough import RunnableAssign
 from langgraph.graph.state import Runnable
 from pydantic import BaseModel, Field
 
-from graph.state import EntitiesOutput
+from graph.state import Entities
 
 
 class EntitiesRetrieverAgent:
@@ -34,11 +34,11 @@ class EntitiesRetrieverAgent:
             logger.error(f"Error trying to read {prompt_file}: {e}")
             raise
 
-    def retrieve_entities(self, text: str) -> EntitiesOutput:
+    def retrieve_entities(self, text: str) -> Entities:
         """Retrieve entities from text."""
-        structured_model = self._model.with_structured_output(EntitiesOutput)
+        structured_model = self._model.with_structured_output(Entities)
         response = structured_model.invoke(
             [SystemMessage(self._system_prompt), HumanMessage(text)]
         )
 
-        return cast(EntitiesOutput, response)
+        return cast(Entities, response)

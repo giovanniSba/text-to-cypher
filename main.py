@@ -14,19 +14,17 @@ def main():
     instruction = input("You: ")
     init_state = create_init_state(instruction)
 
-    print("Avvio del grafo...")
-
     graph = build_graph()
 
     final_state = graph.invoke(init_state)
 
-    print("\n--- STATO FINALE ---")
+    print("\n--- FINAL STATE ---")
     print(final_state)
 
     # generate graph png image
-    png_data = graph.get_graph().draw_mermaid_png()
-    with open("grafo.png", "wb") as f:
-        f.write(png_data)
+    # png_data = graph.get_graph().draw_mermaid_png()
+    # with open("grafo.png", "wb") as f:
+    #     f.write(png_data)
 
 
 if __name__ == "__main__":

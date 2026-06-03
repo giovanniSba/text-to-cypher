@@ -1,12 +1,17 @@
+import json
 import xml.etree.ElementTree as ET
 
 
-def extract_schema_from_owl(file_path: str) -> str:
-    """Legge un file OWL/XML ed estrae Nodi, Relazioni e Attributi per il prompt LLM."""
+def extract_schema_from_owl_to_jsonl(file_path: str, output_path: str):
+    """Legge un file OWL/XML ed estrae Nodi, Relazioni e Attributi salvandoli in un file JSONL
+
+    con liste di stringhe per proprietà e relazioni.
+    """
     tree = ET.parse(file_path)
     root = tree.getroot()
     ns = {"owl": "http://www.w3.org/2002/07/owl#"}
 
+    # --- ESTRAZIONE CLASSI ---
     classes = set()
     for decl in root.findall("owl:Declaration", ns):
         cls = decl.find("owl:Class", ns)
@@ -14,6 +19,10 @@ def extract_schema_from_owl(file_path: str) -> str:
             iri = cls.get("IRI") or cls.get("abbreviatedIRI")
             if iri:
                 classes.add(iri.split("/")[-1])
+
+    # Inizializza i dizionari per raggruppare i dati per ogni classe come liste di stringhe
+    attributes_by_class = {c: [] for c in classes}
+    relations_by_class = {c: [] for c in classes}
 
     # --- ESTRAZIONE OBJECT PROPERTIES (Relazioni) ---
     obj_domains = {}
@@ -31,13 +40,15 @@ def extract_schema_from_owl(file_path: str) -> str:
         if prop is not None and cls is not None:
             obj_ranges[prop.get("IRI").split("/")[-1]] = cls.get("IRI").split("/")[-1]
 
-    relations = []
+    # Popola le relazioni nel formato richiesto: entità-relazione->entità
     for prop_name, domain_class in obj_domains.items():
-        if prop_name in obj_ranges:
+        if domain_class in relations_by_class and prop_name in obj_ranges:
             range_class = obj_ranges[prop_name]
-            relations.append(f"- {domain_class} -> {prop_name} -> {range_class}")
+            relations_by_class[domain_class].append(
+                f"{domain_class} {prop_name} {range_class}"
+            )
 
-    # --- ESTRAZIONE DATA PROPERTIES (Attributi) ---
+    # --- ESTRAZIONE DATA PROPERTIES (Attributi / Proprietà) ---
     data_domains = {}
     data_ranges = {}
 
@@ -59,29 +70,28 @@ def extract_schema_from_owl(file_path: str) -> str:
             )
             data_ranges[prop.get("IRI").split("/")[-1]] = dt_type
 
-    # Mappa gli attributi alle rispettive classi
-    attributes_by_class = {c: [] for c in classes}
+    # Popola le proprietà nel formato richiesto: entità-proprietà->tipo
     for prop_name, class_name in data_domains.items():
         if class_name in attributes_by_class:
             dt_type = data_ranges.get(prop_name, "string")
-            attributes_by_class[class_name].append(f"{prop_name} ({dt_type})")
+            attributes_by_class[class_name].append(f"{prop_name}: {dt_type}")
 
-    # --- COSTRUZIONE OUTPUT ---
-    schema_text = "CLASSI VALIDE E LORO ATTRIBUTI:\n"
-    for cls in sorted(classes):
-        attrs = (
-            ", ".join(attributes_by_class[cls])
-            if attributes_by_class[cls]
-            else "Nessun attributo"
-        )
-        schema_text += f"- {cls}: [{attrs}]\n"
+    # --- SALVATAGGIO IN JSONL ---
+    with open(output_path, "w", encoding="utf-8") as f:
+        for cls in sorted(classes):
+            entity_data = {
+                "entity": cls,
+                "properties": attributes_by_class[
+                    cls
+                ],  # Ora è una lista di stringhe ["Persona-nome->string"]
+                "relations": relations_by_class[
+                    cls
+                ],  # È una lista di stringhe ["Persona-lavoraIn->Azienda"]
+            }
+            f.write(json.dumps(entity_data) + "\n")
 
-    schema_text += "\nRELAZIONI VALIDE (Dominio -> Relazione -> Range):\n" + "\n".join(
-        relations
-    )
-
-    return schema_text
+    print(f"Salvataggio completato! Dati esportati in: {output_path}")
 
 
-result = extract_schema_from_owl("maestro.owl")
-print(result)
+# Esecuzione
+extract_schema_from_owl_to_jsonl("maestro.owl", "schema_output.jsonl")

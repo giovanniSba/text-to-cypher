@@ -6,11 +6,14 @@ from src.agents.translator_agent import (
     TranslateRequest,
     TranslatorAgent,
 )
-from src.graph.state import GraphState
+from src.graph.state import CypherTranslation, GraphState
 
 
 def cypher_generator(state: GraphState) -> dict:
     """Translate text to cypher."""
+    print("====CYPHER GENERATOR NODE STATE====")
+    print(state)
+
     agent = TranslatorAgent(Path("translator_system_prompt.txt"), model=model)
 
     translate_request: TranslateRequest = cast(
@@ -18,11 +21,9 @@ def cypher_generator(state: GraphState) -> dict:
         {
             "instruction": state.get("instruction", ""),
             "retrieved_examples": state.get("retrieved_examples", ""),
-            "retrieved_entities": state.get("retrieved_entities", ""),
+            "retrieved_schema": state.get("retrieved_schema", ""),
         },
     )
 
-    response = agent.translate(translate_request)
-    cypher_query = response.content[0].get("text", "Error in query translation")
-    print(cypher_query)
-    return {"generated_cyper": cypher_query}
+    response: CypherTranslation = agent.translate(translate_request)
+    return {"generated_cyper": response}

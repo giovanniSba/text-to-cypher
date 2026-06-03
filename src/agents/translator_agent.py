@@ -12,13 +12,15 @@ from langchain_core.prompts import (
 from langgraph.graph.state import Runnable
 from pydantic import BaseModel
 
+from graph.state import CypherTranslation, DBSchema, Examples
+
 
 class TranslateRequest(BaseModel):
     """Translation request model."""
 
     instruction: str
-    retrieved_examples: list[Any]
-    retrieved_entities: list[Any]
+    retrieved_examples: Examples
+    retrieved_schema: DBSchema
 
 
 class TranslatorAgent:
@@ -67,7 +69,7 @@ class TranslatorAgent:
         template = Template(system_prompt_template)
         self._system_prompt = template.safe_substitute(lang_syntax=self._lang_syntax)
 
-    def translate(self, translate_request: TranslateRequest):
+    def translate(self, translate_request: TranslateRequest) -> CypherTranslation:
         """Translate text-to-cypher function."""
         system_message_prompt = SystemMessagePromptTemplate.from_template(
             self._system_prompt, template_format="jinja2"
@@ -81,9 +83,10 @@ class TranslatorAgent:
             [system_message_prompt, human_message_prompt]
         )
 
-        translator_chain = request_prompt_template | self._model
+        structured_model = self._model.with_structured_output(CypherTranslation)
+        translator_chain = request_prompt_template | structured_model
 
         # format system prompt with entities and examples and pass the result to the llm
         response = translator_chain.invoke(cast(dict[str, Any], translate_request))
 
-        return response
+        return cast(CypherTranslation, response)
