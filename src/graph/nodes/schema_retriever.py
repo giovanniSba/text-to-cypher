@@ -30,8 +30,5 @@ def schema_retriever(state: GraphState) -> dict:
     for _key, ent in chunks.items():
         schema.append(ent)
 
-    retrieved_schema: DBSchema = cast(DBSchema, {"db_schema": schema})
-
-    #     ================================
-    #     """)
+    retrieved_schema = DBSchema(db_schema=schema)
     return {"retrieved_schema": retrieved_schema}

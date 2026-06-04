@@ -33,9 +33,7 @@ def db_validator(state: GraphState) -> dict:
             error_message = e.message
             is_valid = False
 
-    attempt: Attempt = cast(
-        Attempt, {"generated_cypher": last_generated_cypher, "db_error": error_message}
-    )
+    attempt = Attempt(generated_cypher=last_generated_cypher, db_error=error_message)
 
     attempts_record.attempts.append(attempt)
 
