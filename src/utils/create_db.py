@@ -1,5 +1,4 @@
 import json
-import os
 
 from dotenv import load_dotenv
 from langchain_chroma import Chroma
@@ -11,7 +10,7 @@ embeddings = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-2")
 
 # Carica i dati
 examples = []
-with open("macro_training_dataset.jsonl", "r", encoding="utf-8") as f:
+with open("macro_training_dataset.jsonl", encoding="utf-8") as f:
     for line in f:
         data = json.loads(line)
         text = data["input"]

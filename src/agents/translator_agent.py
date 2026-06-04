@@ -1,6 +1,6 @@
 from pathlib import Path
 from string import Template
-from typing import Any, cast
+from typing import cast
 
 from dotenv.main import logger
 from langchain_core.language_models.chat_models import BaseChatModel
@@ -9,7 +9,6 @@ from langchain_core.prompts import (
     HumanMessagePromptTemplate,
     SystemMessagePromptTemplate,
 )
-from langgraph.graph.state import Runnable
 from pydantic import BaseModel
 
 from src.graph.state import (

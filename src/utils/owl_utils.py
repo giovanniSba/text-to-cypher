@@ -1,99 +1,117 @@
 import json
+import logging
 import xml.etree.ElementTree as ET
+from pathlib import Path
+from typing import Dict, List
+
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 
-def extract_schema_from_owl_to_jsonl(file_path: str, output_path: str):
-    """Legge un file OWL/XML ed estrae Nodi, Relazioni e Attributi salvandoli in un file JSONL
+def _extract_suffix(element: ET.Element | None) -> str:
+    """Safely extract the IRI suffix."""
+    if element is None:
+        return ""
+    iri = element.get("IRI") or element.get("abbreviatedIRI") or ""
+    return iri.split("/")[-1]
 
-    con liste di stringhe per proprietà e relazioni.
-    """
-    tree = ET.parse(file_path)
-    root = tree.getroot()
+
+def _format_pascal(text: str) -> str:
+    """Format string to Pascal_Case."""
+    return text.replace("_", " ").title().replace(" ", "_")
+
+
+def _format_camel(text: str) -> str:
+    """Format string to camelCase."""
+    if not text:
+        return ""
+    title_case = text.title().replace("_", "")
+    return title_case[0].lower() + title_case[1:]
+
+
+def parse_owl_to_jsonl(input_file: str | Path, output_file: str | Path) -> None:
+    """Parse OWL/XML and export schema mapping to JSONL."""
     ns = {"owl": "http://www.w3.org/2002/07/owl#"}
+    in_path, out_path = Path(input_file), Path(output_file)
 
-    # --- ESTRAZIONE CLASSI ---
-    classes = set()
-    for decl in root.findall("owl:Declaration", ns):
-        cls = decl.find("owl:Class", ns)
-        if cls is not None:
-            iri = cls.get("IRI") or cls.get("abbreviatedIRI")
-            if iri:
-                classes.add(iri.split("/")[-1])
+    if not in_path.is_file():
+        logging.error(f"Input file not found: {in_path}")
+        return
 
-    # Inizializza i dizionari per raggruppare i dati per ogni classe come liste di stringhe
-    attributes_by_class = {c: [] for c in classes}
-    relations_by_class = {c: [] for c in classes}
+    try:
+        tree = ET.parse(in_path)
+        root = tree.getroot()
+    except (ET.ParseError, OSError) as e:
+        logging.error(f"Failed to parse XML: {e}")
+        return
 
-    # --- ESTRAZIONE OBJECT PROPERTIES (Relazioni) ---
-    obj_domains = {}
-    obj_ranges = {}
+    # Extract classes
+    classes = {
+        _extract_suffix(decl.find("owl:Class", ns))
+        for decl in root.findall("owl:Declaration", ns)
+    }
+    classes.discard("")
 
-    for dom in root.findall("owl:ObjectPropertyDomain", ns):
-        prop = dom.find("owl:ObjectProperty", ns)
-        cls = dom.find("owl:Class", ns)
-        if prop is not None and cls is not None:
-            obj_domains[prop.get("IRI").split("/")[-1]] = cls.get("IRI").split("/")[-1]
+    attributes: Dict[str, List[str]] = {c: [] for c in classes}
+    relations: Dict[str, List[str]] = {c: [] for c in classes}
 
-    for rng in root.findall("owl:ObjectPropertyRange", ns):
-        prop = rng.find("owl:ObjectProperty", ns)
-        cls = rng.find("owl:Class", ns)
-        if prop is not None and cls is not None:
-            obj_ranges[prop.get("IRI").split("/")[-1]] = cls.get("IRI").split("/")[-1]
+    # Extract object properties (Relations)
+    obj_domains = {
+        _extract_suffix(dom.find("owl:ObjectProperty", ns)): _extract_suffix(
+            dom.find("owl:Class", ns)
+        )
+        for dom in root.findall("owl:ObjectPropertyDomain", ns)
+    }
 
-    # Popola le relazioni nel formato richiesto: entità-relazione->entità
+    obj_ranges = {
+        _extract_suffix(rng.find("owl:ObjectProperty", ns)): _extract_suffix(
+            rng.find("owl:Class", ns)
+        )
+        for rng in root.findall("owl:ObjectPropertyRange", ns)
+    }
+
     for prop_name, domain_class in obj_domains.items():
-        if domain_class in relations_by_class and prop_name in obj_ranges:
-            range_class = obj_ranges[prop_name]
-            relations_by_class[domain_class].append(
-                f"{domain_class.replace('_', ' ').title().replace(' ', '_')} {prop_name.upper()} {range_class.replace('_', ' ').title().replace(' ', '_')}"
+        range_class = obj_ranges.get(prop_name)
+        if prop_name and domain_class in relations and range_class:
+            fmt_domain = _format_pascal(domain_class)
+            fmt_range = _format_pascal(range_class)
+            relations[domain_class].append(
+                f"{fmt_domain} {prop_name.upper()} {fmt_range}"
             )
 
-    # --- ESTRAZIONE DATA PROPERTIES (Attributi / Proprietà) ---
-    data_domains = {}
+    # Extract data properties (Attributes)
+    data_domains = {
+        _extract_suffix(dom.find("owl:DataProperty", ns)): _extract_suffix(
+            dom.find("owl:Class", ns)
+        )
+        for dom in root.findall("owl:DataPropertyDomain", ns)
+    }
+
     data_ranges = {}
-
-    for dom in root.findall("owl:DataPropertyDomain", ns):
-        prop = dom.find("owl:DataProperty", ns)
-        cls = dom.find("owl:Class", ns)
-        if prop is not None and cls is not None:
-            data_domains[prop.get("IRI").split("/")[-1]] = cls.get("IRI").split("/")[-1]
-
     for rng in root.findall("owl:DataPropertyRange", ns):
-        prop = rng.find("owl:DataProperty", ns)
+        prop_name = _extract_suffix(rng.find("owl:DataProperty", ns))
         dt = rng.find("owl:Datatype", ns)
-        if prop is not None and dt is not None:
-            # Pulisce 'xsd:string' in 'string'
-            dt_type = (
-                dt.get("abbreviatedIRI").replace("xsd:", "")
-                if dt.get("abbreviatedIRI")
-                else "string"
-            )
-            data_ranges[prop.get("IRI").split("/")[-1]] = dt_type
+        if prop_name and dt is not None:
+            abbr = dt.get("abbreviatedIRI", "")
+            data_ranges[prop_name] = abbr.replace("xsd:", "") if abbr else "string"
 
-    # Popola le proprietà nel formato richiesto: entità-proprietà->tipo
     for prop_name, class_name in data_domains.items():
-        if class_name in attributes_by_class:
+        if prop_name and class_name in attributes:
             dt_type = data_ranges.get(prop_name, "string")
-            prop_name = prop_name.title().replace("_", "")
-            prop_name = prop_name[0].lower() + prop_name[1:]
-            attributes_by_class[class_name].append(f"{prop_name}: {dt_type}")
+            attributes[class_name].append(f"{_format_camel(prop_name)}: {dt_type}")
 
-    # --- SALVATAGGIO IN JSONL ---
-    with open(output_path, "w", encoding="utf-8") as f:
-        for cls in sorted(classes):
-            entity_data = {
-                "entity": cls,
-                "properties": attributes_by_class[
-                    cls
-                ],  # Ora è una lista di stringhe ["Persona-nome->string"]
-                "relations": relations_by_class[
-                    cls
-                ],  # È una lista di stringhe ["Persona-lavoraIn->Azienda"]
-            }
-            f.write(json.dumps(entity_data) + "\n")
-
-    print(f"Salvataggio completato! Dati esportati in: {output_path}")
+    # Export to JSONL
+    try:
+        with out_path.open("w", encoding="utf-8") as f:
+            for cls in sorted(classes):
+                record = {
+                    "entity": cls,
+                    "properties": attributes[cls],
+                    "relations": relations[cls],
+                }
+                f.write(json.dumps(record) + "\n")
+        logging.info(f"Successfully exported schema to: {out_path}")
+    except OSError as e:
+        logging.error(f"Failed to write output file: {e}")
 
 
-# Esecuzione
-extract_schema_from_owl_to_jsonl("maestro.owl", "schema_output.jsonl")
+parse_owl_to_jsonl("maestro.owl", "schema_output.jsonl")

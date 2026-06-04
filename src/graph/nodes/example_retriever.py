@@ -1,8 +1,6 @@
 from typing import cast
 
 from langchain_chroma.vectorstores import Chroma
-from langchain_core.example_selectors import SemanticSimilarityExampleSelector
-from langgraph.graph.message import TypedDict
 
 from model.model import embeddings_model
 from src.graph.state import Examples, GraphState, QueryExample

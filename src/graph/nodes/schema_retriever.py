@@ -4,7 +4,7 @@ from typing import cast
 from langchain_chroma import Chroma
 
 from model.model import embeddings_model
-from src.graph.state import DBEntity, DBSchema, Entities, GraphState
+from src.graph.state import DBEntity, DBSchema, GraphState
 
 vectorstore = Chroma(
     persist_directory="./onthology_db", embedding_function=embeddings_model

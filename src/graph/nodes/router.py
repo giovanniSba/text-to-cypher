@@ -1,4 +1,4 @@
-from langgraph.graph import END
+from langgraph.constants import END
 
 from src.graph.state import GraphState
 

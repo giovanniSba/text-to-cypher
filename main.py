@@ -1,5 +1,6 @@
+import logging
+
 from dotenv import load_dotenv
-from IPython.display import Image, display
 
 from src.graph.graph import build_graph
 from src.graph.state import create_init_state
