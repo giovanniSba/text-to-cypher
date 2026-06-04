@@ -1,6 +1,7 @@
 from pathlib import Path
 
-from model.model import model
+from agents.agents import get_translator_agent
+from model.model import get_embedding_model, get_model
 from src.agents.translator_agent import (
     TranslateRequest,
     TranslatorAgent,
@@ -13,7 +14,7 @@ def cypher_generator(state: GraphState) -> dict:
     print("====CYPHER GENERATOR NODE STATE====")
     print(state)
 
-    agent = TranslatorAgent(Path("translator_system_prompt.txt"), model=model)
+    agent = get_translator_agent()
 
     examples = state.get("retrieved_examples")
     schema = state.get("retrieved_schema")
@@ -26,6 +27,7 @@ def cypher_generator(state: GraphState) -> dict:
         retrieved_examples=examples,
         retrieved_schema=schema,
         attempts=state.get("attempts"),
+        lang_syntax=None,
     )
 
     response: CypherTranslation = agent.translate(translate_request)

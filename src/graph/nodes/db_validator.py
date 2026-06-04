@@ -1,11 +1,9 @@
 from typing import LiteralString, cast
 
-from neo4j import GraphDatabase
-from neo4j.exceptions import CypherSyntaxError, CypherTypeError
+from neo4j.exceptions import CypherSyntaxError, CypherTypeError, Neo4jError
 
 from src.graph.state import Attempt, AttemptsRecord, GraphState
-
-driver = GraphDatabase.driver("neo4j://localhost:7687", auth=("neo4j", "changeme123"))
+from utils.neo4j import get_driver
 
 
 def db_validator(state: GraphState) -> dict:
@@ -13,11 +11,14 @@ def db_validator(state: GraphState) -> dict:
     print("====DB VALIDATOR NODE STATE====")
     print(state)
 
+    attempts_record: AttemptsRecord = state["attempts"]
+    driver = get_driver()
+
     last_generated_cypher = state.get("generated_cypher", None)
     if last_generated_cypher is None:
         raise ValueError("Error: generated cypher is None.")
 
-    query = last_generated_cypher.query
+    query = last_generated_cypher.query.strip()
     # validate
     validation_query = cast(LiteralString, f"EXPLAIN {query}")
 
@@ -29,16 +30,14 @@ def db_validator(state: GraphState) -> dict:
             session.execute_read(lambda tx: tx.run(validation_query).consume())
             is_valid = True
 
-        except (CypherSyntaxError, CypherSyntaxError, CypherTypeError) as e:
-            error_message = f"Errore Neo4j: {e.message}"
-
+        except (CypherSyntaxError, CypherTypeError, Neo4jError) as e:
+            error_message = e.message
             is_valid = False
 
     attempt: Attempt = cast(
         Attempt, {"generated_cypher": last_generated_cypher, "db_error": error_message}
     )
 
-    attempts_record: AttemptsRecord = state["attempts"]
     attempts_record.attempts.append(attempt)
 
     state_update = {"is_valid": is_valid, "attempts": attempts_record}

@@ -1,5 +1,4 @@
 from pathlib import Path
-from string import Template
 from typing import cast
 
 from dotenv.main import logger
@@ -26,6 +25,7 @@ class TranslateRequest(BaseModel):
     retrieved_examples: Examples
     retrieved_schema: DBSchema
     attempts: AttemptsRecord
+    lang_syntax: str | None
 
 
 class TranslatorAgent:
@@ -37,7 +37,7 @@ class TranslatorAgent:
 
     def __init__(
         self,
-        system_prompt_path: Path,
+        system_prompt_path: str,
         model,
     ):
         """Create a translator for text to cypher."""
@@ -59,26 +59,25 @@ class TranslatorAgent:
             raise FileNotFoundError(f"Impossibile trovare {syntax_file}")
 
         try:
-            system_prompt_template = prompt_file.read_text(encoding="utf-8")
-        except Exception as e:
+            self._system_prompt = prompt_file.read_text(encoding="utf-8")
+        except OSError as e:
             logger.error(f"Errore durante la lettura di {prompt_file}: {e}")
             raise
 
         try:
             self._lang_syntax = syntax_file.read_text(encoding="utf-8")
-        except Exception as e:
+        except OSError as e:
             logger.error(f"Errore durante la lettura di {syntax_file}: {e}")
             raise
-
-        # inject lang syntax
-        template = Template(system_prompt_template)
-        self._system_prompt = template.safe_substitute(lang_syntax=self._lang_syntax)
 
     def translate(
         self,
         translate_request: TranslateRequest,
     ) -> CypherTranslation:
         """Translate text-to-cypher function."""
+        if translate_request.lang_syntax is None:
+            translate_request.lang_syntax = self._lang_syntax
+
         system_message_prompt = SystemMessagePromptTemplate.from_template(
             self._system_prompt, template_format="jinja2"
         )

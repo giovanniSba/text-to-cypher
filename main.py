@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 
 from src.graph.graph import build_graph
 from src.graph.state import create_init_state
+from utils.neo4j import close_driver
 
 load_dotenv()
 
@@ -27,6 +28,7 @@ def main():
     # png_data = graph.get_graph().draw_mermaid_png()
     # with open("grafo.png", "wb") as f:
     #     f.write(png_data)
+    close_driver()
 
 
 if __name__ == "__main__":

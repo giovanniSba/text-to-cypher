@@ -31,6 +31,7 @@ metadati = [ex["metadata"] for ex in examples]
 # CREA E SALVA IL DB SU DISCO
 # Specificando persist_directory, Chroma salverà i file fisicamente in quella cartella
 vectorstore = Chroma.from_texts(
+    collection_name="example_collection",
     texts=testi,
     metadatas=metadati,
     embedding=embeddings,

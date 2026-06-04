@@ -1,14 +1,8 @@
 import json
 from typing import cast
 
-from langchain_chroma import Chroma
-
-from model.model import embeddings_model
 from src.graph.state import DBEntity, DBSchema, GraphState
-
-vectorstore = Chroma(
-    persist_directory="./onthology_db", embedding_function=embeddings_model
-)
+from utils.vector_stores import get_schema_store
 
 
 def schema_retriever(state: GraphState) -> dict:
@@ -16,6 +10,7 @@ def schema_retriever(state: GraphState) -> dict:
     print("====SCHEMA RETRIEVER NODE STATE====")
     print(state)
 
+    vectorstore = get_schema_store()
     raw_entities = state.get("retrieved_entities", None)
 
     if raw_entities is None:

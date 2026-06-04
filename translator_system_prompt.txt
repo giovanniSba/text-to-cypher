@@ -9,7 +9,7 @@ Vuol dire che 'relazione' è una relazione che va da 'entità1' a 'entità2'
 Non inventare nulla. Se non riesci a identificare i nodi, le relazioni o le proprietà segnala l'errore e forniscine una descrizione sintetica ma completa.
 Se l'errore che trovi non è troppo grave prova lo stesso a generare la query.
 REGOLA 2: Puoi usare SOLO le seguenti clausole: MATCH, WHERE, RETURN. Ecco la sintassi in EBNF.
-$lang_syntax
+{{lang_syntax}}
 REGOLA 3: È severamente vietato usare funzioni avanzate (come OPTIONAL MATCH, WITH, UNWIND, COUNT) o qualsiasi altra cosa non presente negli esempi.
 REGOLA 4: Rispondi SOLO con il codice della query, senza spiegazioni, senza saluti e senza testo aggiuntivo.
 REGOLA 5: I nomi nello schema rispettano le seguenti convenzioni:
