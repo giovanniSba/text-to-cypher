@@ -1,7 +1,6 @@
 from pathlib import Path
 from typing import cast
 
-from dotenv.main import logger
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.prompts import (
     ChatPromptTemplate,
@@ -49,26 +48,14 @@ class TranslatorAgent:
         syntax_file = Path("syntax_placeholder.txt")
 
         if not prompt_file.is_file():
-            logger.error(f"Il file di prompt non esiste o non è valido: {prompt_file}")
-            raise FileNotFoundError(f"Impossibile trovare {prompt_file}")
+            raise FileNotFoundError(f"{prompt_file} not found")
 
         if not syntax_file.is_file():
-            logger.error(
-                f"Il file di sintassi non esiste o non è valido: {syntax_file}"
-            )
-            raise FileNotFoundError(f"Impossibile trovare {syntax_file}")
+            raise FileNotFoundError(f"{syntax_file} not found")
 
-        try:
-            self._system_prompt = prompt_file.read_text(encoding="utf-8")
-        except OSError as e:
-            logger.error(f"Errore durante la lettura di {prompt_file}: {e}")
-            raise
+        self._system_prompt = prompt_file.read_text(encoding="utf-8")
 
-        try:
-            self._lang_syntax = syntax_file.read_text(encoding="utf-8")
-        except OSError as e:
-            logger.error(f"Errore durante la lettura di {syntax_file}: {e}")
-            raise
+        self._lang_syntax = syntax_file.read_text(encoding="utf-8")
 
     def translate(
         self,

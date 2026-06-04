@@ -37,12 +37,8 @@ def parse_owl_to_jsonl(input_file: str | Path, output_file: str | Path) -> None:
         logging.error(f"Input file not found: {in_path}")
         return
 
-    try:
-        tree = ET.parse(in_path)
-        root = tree.getroot()
-    except (ET.ParseError, OSError) as e:
-        logging.error(f"Failed to parse XML: {e}")
-        return
+    tree = ET.parse(in_path)
+    root = tree.getroot()
 
     # Extract classes
     classes = {
@@ -100,18 +96,15 @@ def parse_owl_to_jsonl(input_file: str | Path, output_file: str | Path) -> None:
             attributes[class_name].append(f"{_format_camel(prop_name)}: {dt_type}")
 
     # Export to JSONL
-    try:
-        with out_path.open("w", encoding="utf-8") as f:
-            for cls in sorted(classes):
-                record = {
-                    "entity": cls,
-                    "properties": attributes[cls],
-                    "relations": relations[cls],
-                }
-                f.write(json.dumps(record) + "\n")
-        logging.info(f"Successfully exported schema to: {out_path}")
-    except OSError as e:
-        logging.error(f"Failed to write output file: {e}")
+    with out_path.open("w", encoding="utf-8") as f:
+        for cls in sorted(classes):
+            record = {
+                "entity": cls,
+                "properties": attributes[cls],
+                "relations": relations[cls],
+            }
+            f.write(json.dumps(record) + "\n")
+    logging.info(f"Successfully exported schema to: {out_path}")
 
 
 parse_owl_to_jsonl("maestro.owl", "schema_output.jsonl")

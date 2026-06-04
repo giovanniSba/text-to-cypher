@@ -1,6 +1,4 @@
 from agents.agents import get_entity_retriever_agent
-from agents.entity_retriever_agent import EntityRetrieverAgent
-from model.model import get_model
 from src.graph.state import GraphState
 
 

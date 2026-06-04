@@ -1,4 +1,3 @@
-import logging
 
 from dotenv import load_dotenv
 
@@ -22,7 +21,7 @@ def main():
     print(final_state)
 
     print("\n\n\n==========================")
-    print(f"{final_state['generated_cypher']}\ttry: {final_state['retry_count']}")
+    # print(f"{final_state['generated_cypher']}\ttry: {final_state['retry_count']}")
 
     # generate graph png image
     # png_data = graph.get_graph().draw_mermaid_png()

@@ -1,7 +1,5 @@
 from typing import cast
 
-from langchain_chroma.vectorstores import Chroma
-
 from src.graph.state import Examples, GraphState, QueryExample
 from utils.vector_stores import get_examples_store
 

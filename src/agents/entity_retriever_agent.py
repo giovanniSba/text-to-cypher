@@ -1,7 +1,6 @@
 from pathlib import Path
 from typing import cast
 
-from dotenv.main import logger
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages.human import HumanMessage
 from langchain_core.messages.system import SystemMessage
@@ -21,14 +20,9 @@ class EntityRetrieverAgent:
         prompt_file = Path(system_prompt_path)
 
         if not prompt_file.is_file():
-            logger.error(f"Il file di prompt non esiste o non è valido: {prompt_file}")
             raise FileNotFoundError(f"Impossibile trovare {prompt_file}")
 
-        try:
-            self._system_prompt = prompt_file.read_text(encoding="utf-8")
-        except Exception as e:
-            logger.error(f"Error trying to read {prompt_file}: {e}")
-            raise
+        self._system_prompt = prompt_file.read_text(encoding="utf-8")
 
     def retrieve_entities(self, text: str) -> Entities:
         """Retrieve entities from text."""
