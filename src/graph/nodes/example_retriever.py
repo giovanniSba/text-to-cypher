@@ -1,4 +1,3 @@
-from typing import cast
 
 from src.graph.state import Examples, GraphState, QueryExample
 from utils.vector_stores import get_examples_store

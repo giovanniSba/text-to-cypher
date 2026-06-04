@@ -1,5 +1,4 @@
 import json
-from typing import cast
 
 from src.graph.state import DBEntity, DBSchema, GraphState
 from utils.vector_stores import get_schema_store
