@@ -45,7 +45,7 @@ def extract_schema_from_owl_to_jsonl(file_path: str, output_path: str):
         if domain_class in relations_by_class and prop_name in obj_ranges:
             range_class = obj_ranges[prop_name]
             relations_by_class[domain_class].append(
-                f"{domain_class} {prop_name} {range_class}"
+                f"{domain_class.replace('_', ' ').title().replace(' ', '_')} {prop_name.upper()} {range_class.replace('_', ' ').title().replace(' ', '_')}"
             )
 
     # --- ESTRAZIONE DATA PROPERTIES (Attributi / Proprietà) ---
@@ -74,6 +74,8 @@ def extract_schema_from_owl_to_jsonl(file_path: str, output_path: str):
     for prop_name, class_name in data_domains.items():
         if class_name in attributes_by_class:
             dt_type = data_ranges.get(prop_name, "string")
+            prop_name = prop_name.title().replace("_", "")
+            prop_name = prop_name[0].lower() + prop_name[1:]
             attributes_by_class[class_name].append(f"{prop_name}: {dt_type}")
 
     # --- SALVATAGGIO IN JSONL ---

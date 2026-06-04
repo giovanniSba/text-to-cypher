@@ -7,13 +7,12 @@ from langchain_core.messages import AIMessage
 from langchain_core.messages.human import HumanMessage
 from langchain_core.messages.system import SystemMessage
 from langchain_core.runnables.passthrough import RunnableAssign
-from langgraph.graph.state import Runnable
 from pydantic import BaseModel, Field
 
 from graph.state import Entities
 
 
-class EntitiesRetrieverAgent:
+class EntityRetrieverAgent:
     """Entities retriver agent."""
 
     _model: BaseChatModel

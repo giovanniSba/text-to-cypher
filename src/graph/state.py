@@ -4,23 +4,31 @@ from pydantic import BaseModel, Field
 
 
 class QueryExample(BaseModel):
+    """NL-Cypher pair."""
+
     instruction: str
     expected: str
 
 
 class Examples(BaseModel):
+    """Example list."""
+
     examples: list[QueryExample] = Field(
         description="Una lista di esempi simili alla richiesta dell'utente"
     )
 
 
 class Entities(BaseModel):
+    """List of entities involved."""
+
     entities: list[str] = Field(
         description="Una lista di entità rilevanti estratte dal testo"
     )
 
 
 class DBEntity(BaseModel):
+    """Representation of entities in the database."""
+
     name: str = Field(description="Nome dell'entità")
     properties: list[str] = Field(description="Proprietà dell'entità")
     relations: list[str] = Field(
@@ -29,12 +37,16 @@ class DBEntity(BaseModel):
 
 
 class DBSchema(BaseModel):
+    """List of DBEntity that represent the DB schema."""
+
     db_schema: list[DBEntity] = Field(
         description="Schema del database espresso come lista di entità, proprietà e relazioni fra esse"
     )
 
 
 class CypherTranslation(BaseModel):
+    """Result of a text-to-cypher translation."""
+
     query: str = Field(
         description="La query Cypher finale generata, senza markdown o testo aggiuntivo"
     )
@@ -44,6 +56,8 @@ class CypherTranslation(BaseModel):
 
 
 class Attempt(BaseModel):
+    """CypherTranslation and the error produced in the validation node."""
+
     generated_cypher: CypherTranslation = Field(
         description="Query cypher generata per instruction"
     )
@@ -51,6 +65,8 @@ class Attempt(BaseModel):
 
 
 class AttemptsRecord(BaseModel):
+    """Attempt list."""
+
     instruction: str = Field(description="Testo naturale da convertire in query cypher")
     attempts: list[Attempt] = Field(
         description="Tentativi di traduzione eseguiti per instruction"

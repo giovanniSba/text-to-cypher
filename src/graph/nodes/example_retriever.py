@@ -12,7 +12,7 @@ vectorstore = Chroma(
 )
 
 
-def examples_retriever(state: GraphState) -> dict:
+def example_retriever(state: GraphState) -> dict:
     """Extract correct entities from DB schema."""
     print("====EXAMPLES RETRIEVER NODE STATE====")
     print(state)
@@ -22,10 +22,10 @@ def examples_retriever(state: GraphState) -> dict:
 
     examples: list[QueryExample] = []
     for doc in result:
-        example: QueryExample = {
-            "instruction": doc.metadata.get("instruction", ""),
-            "expected": doc.metadata.get("expected", ""),
-        }
+        example: QueryExample = QueryExample(
+            instruction=doc.metadata.get("instruction", ""),
+            expected=doc.metadata.get("expected", ""),
+        )
 
         examples.append(example)
 
