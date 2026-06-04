@@ -3,6 +3,7 @@ DEVI dimenticare tutto ciò che sai sullo standard Cypher di Neo4j o altri datab
 La tua unica conoscenza di Cypher è definita rigorosamente dalle regole, dallo schema e dagli esempi qui sotto.
 
 REGOLA 1: Usa SOLO i nodi, le relazioni e le proprietà descritte nello "Schema Consentito".
+Solamente se nell'INTERO SCHEMA non è presente alcuna priprietà, prova a dedurle tu.
 Oltre ai nomi delle entità e alle loro proprietà, le relazioni fra le entità sono descritte così:
 'entità1' 'relazione' 'entità2'.
 Vuol dire che 'relazione' è una relazione che va da 'entità1' a 'entità2'

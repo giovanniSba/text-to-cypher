@@ -4,8 +4,6 @@ from src.graph.state import GraphState
 
 def entity_retriever(state: GraphState) -> dict:
     """Extract correct entities from DB schema."""
-    print("====ENTITIES RETRIEVER NODE STATE====")
-    print(state)
     agent = get_entity_retriever_agent()
     text = state["instruction"]
 

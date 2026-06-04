@@ -6,9 +6,6 @@ from utils.vector_stores import get_examples_store
 
 def example_retriever(state: GraphState) -> dict:
     """Extract correct entities from DB schema."""
-    print("====EXAMPLES RETRIEVER NODE STATE====")
-    print(state)
-
     vectorstore = get_examples_store()
 
     instruction = state["instruction"]

@@ -17,6 +17,15 @@ def validator_router(state: GraphState) -> str:
         return "cypher_generator"
 
 
+def schema_router(state: GraphState) -> str:
+    """Router for entity retrieve/ontology fetching."""
+    ontology_endpoint = state.get("ontology_endpoint")
+    if ontology_endpoint is None:
+        return "entity_retriever"
+    else:
+        return "external_schema_fetcher"
+
+
 def global_router(state: GraphState, next_node: str) -> str:
     """Manage cenetralize error handling."""
     if state.get("final_error") is not None:

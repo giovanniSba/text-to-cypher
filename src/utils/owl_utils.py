@@ -1,14 +1,13 @@
-import json
-import logging
 import xml.etree.ElementTree as ET
-from pathlib import Path
 from typing import Dict, List
 
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+from loguru import logger
+
+from src.graph.state import DBEntity
 
 
+# helpers
 def _extract_suffix(element: ET.Element | None) -> str:
-    """Safely extract the IRI suffix."""
     if element is None:
         return ""
     iri = element.get("IRI") or element.get("abbreviatedIRI") or ""
@@ -16,31 +15,22 @@ def _extract_suffix(element: ET.Element | None) -> str:
 
 
 def _format_pascal(text: str) -> str:
-    """Format string to Pascal_Case."""
     return text.replace("_", " ").title().replace(" ", "_")
 
 
 def _format_camel(text: str) -> str:
-    """Format string to camelCase."""
     if not text:
         return ""
     title_case = text.title().replace("_", "")
     return title_case[0].lower() + title_case[1:]
 
 
-def parse_owl_to_jsonl(input_file: str | Path, output_file: str | Path) -> None:
-    """Parse OWL/XML and export schema mapping to JSONL."""
+def parse_owl_to_entities(owl_string: str) -> list[DBEntity]:
+    """Parse owl to list[DBEntity]."""
     ns = {"owl": "http://www.w3.org/2002/07/owl#"}
-    in_path, out_path = Path(input_file), Path(output_file)
+    root = ET.fromstring(owl_string)
 
-    if not in_path.is_file():
-        logging.error(f"Input file not found: {in_path}")
-        return
-
-    tree = ET.parse(in_path)
-    root = tree.getroot()
-
-    # Extract classes
+    # init & classes
     classes = {
         _extract_suffix(decl.find("owl:Class", ns))
         for decl in root.findall("owl:Declaration", ns)
@@ -50,7 +40,7 @@ def parse_owl_to_jsonl(input_file: str | Path, output_file: str | Path) -> None:
     attributes: Dict[str, List[str]] = {c: [] for c in classes}
     relations: Dict[str, List[str]] = {c: [] for c in classes}
 
-    # Extract object properties (Relations)
+    # object properties
     obj_domains = {
         _extract_suffix(dom.find("owl:ObjectProperty", ns)): _extract_suffix(
             dom.find("owl:Class", ns)
@@ -74,7 +64,7 @@ def parse_owl_to_jsonl(input_file: str | Path, output_file: str | Path) -> None:
                 f"{fmt_domain} {prop_name.upper()} {fmt_range}"
             )
 
-    # Extract data properties (Attributes)
+    # data properties
     data_domains = {
         _extract_suffix(dom.find("owl:DataProperty", ns)): _extract_suffix(
             dom.find("owl:Class", ns)
@@ -95,16 +85,19 @@ def parse_owl_to_jsonl(input_file: str | Path, output_file: str | Path) -> None:
             dt_type = data_ranges.get(prop_name, "string")
             attributes[class_name].append(f"{_format_camel(prop_name)}: {dt_type}")
 
-    # Export to JSONL
-    with out_path.open("w", encoding="utf-8") as f:
-        for cls in sorted(classes):
-            record = {
-                "entity": cls,
-                "properties": attributes[cls],
-                "relations": relations[cls],
-            }
-            f.write(json.dumps(record) + "\n")
-    logging.info(f"Successfully exported schema to: {out_path}")
+    # final assembly
+    entities = []
+    for cls in sorted(classes):
+        entities.append(
+            DBEntity(
+                name=cls,
+                properties=attributes[cls],
+                relations=relations[cls],
+            )
+        )
+
+    logger.info("Parsing owl ontology to list[DBEntity] completed")
+    return entities
 
 
-parse_owl_to_jsonl("maestro.owl", "schema_output.jsonl")
+# parse_owl_to_jsonl("maestro.owl", "schema_output.jsonl")

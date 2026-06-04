@@ -7,9 +7,6 @@ from utils.vector_stores import get_schema_store
 
 def schema_retriever(state: GraphState) -> dict:
     """Retrieve the schema from the schema vector DB."""
-    print("====SCHEMA RETRIEVER NODE STATE====")
-    print(state)
-
     vectorstore = get_schema_store()
     raw_entities = state.get("retrieved_entities", None)
 
@@ -34,9 +31,7 @@ def schema_retriever(state: GraphState) -> dict:
         schema.append(ent)
 
     retrieved_schema: DBSchema = cast(DBSchema, {"db_schema": schema})
-    # print(f"""
-    #     ========SCHEMA RICAVATO=========
-    #     {chunks}
+
     #     ================================
     #     """)
     return {"retrieved_schema": retrieved_schema}

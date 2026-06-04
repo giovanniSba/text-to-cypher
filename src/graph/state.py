@@ -47,10 +47,11 @@ class DBSchema(BaseModel):
 class CypherTranslation(BaseModel):
     """Result of a text-to-cypher translation."""
 
-    query: str = Field(
+    query: str | None = Field(
         description="La query Cypher finale generata, senza markdown o testo aggiuntivo"
     )
-    error: str = Field(
+    note: str | None = Field(description="Note sulla query prodotta.")
+    error: str | None = Field(
         description="Descrizione di un eventuale errore incontrato durante il processo di traduzione"
     )
 
@@ -83,14 +84,20 @@ class GraphState(TypedDict):
     retrieved_entities: Entities | None
     retrieved_examples: Examples | None
     retrieved_schema: DBSchema | None
+    ontology_endpoint: str | None
     attempts: AttemptsRecord
     is_valid: bool | None
     retry_count: int
 
 
-def create_init_state(instruction: str) -> GraphState:
+def create_init_state(instruction: str, ontology_endpoint: str | None) -> GraphState:
     """Return the init state."""
     attempts = AttemptsRecord(instruction=instruction, attempts=[])
-    init_state = {"instruction": instruction, "retry_count": 0, "attempts": attempts}
+    init_state = {
+        "instruction": instruction,
+        "retry_count": 0,
+        "attempts": attempts,
+        "ontology_endpoint": ontology_endpoint,
+    }
 
     return cast(GraphState, init_state)

@@ -37,5 +37,3 @@ vectorstore = Chroma.from_texts(
     embedding=embeddings,
     persist_directory="./training_examples_db",  # Scegli il nome della cartella
 )
-
-print("Database vettoriale creato e salvato con successo!")

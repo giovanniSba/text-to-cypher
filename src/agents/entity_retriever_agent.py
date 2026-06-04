@@ -5,7 +5,7 @@ from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages.human import HumanMessage
 from langchain_core.messages.system import SystemMessage
 
-from graph.state import Entities
+from src.graph.state import Entities
 
 
 class EntityRetrieverAgent:
