@@ -10,14 +10,27 @@ from utils.neo4j import close_driver
 load_dotenv()
 logger.add("text-to-cypher.log", rotation="20 MB")
 ONTOLOGY_ENDPOINT = os.environ.get("ONTOLOGY_ENDPOINT")
+MODEL_ID = os.environ.get("DEFAULT_MODEL_ID", "")
+TEMPERATURE = int(os.environ.get("TEMPERATURE", "0"))
+EXAMPLE_K_VALUE = int(os.environ.get("EXAMPLE_K_VALUE", "5"))
+SCHEMA_K_VALUE = int(os.environ.get("SCHEMA_K_VALUE", "2"))
+MAX_GEN_ATTEMPTS = int(os.environ.get("MAX_GEN_ATTEMPTS", "3"))
+ENABLE_OWL_PARSING = os.environ.get("ENABLE_OWL_PARSING", "") in ["True", "true", 1]
 
 
 def main():
     """Entry point."""
     instruction = input("Query: ")
+    config = GraphConfig(
+        enable_owl_parsing=ENABLE_OWL_PARSING,
+        example_k_value=EXAMPLE_K_VALUE,
+        max_gen_attempts=MAX_GEN_ATTEMPTS,
+        ontology_endpoint=ONTOLOGY_ENDPOINT,
+        schema_k_value=SCHEMA_K_VALUE,
+    )
     init_state = create_init_state(
         instruction,
-        GraphConfig(),
+        config,
     )
 
     graph = build_graph()
