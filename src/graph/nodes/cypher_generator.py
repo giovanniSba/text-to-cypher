@@ -24,4 +24,4 @@ def cypher_generator(state: GraphState) -> dict:
     )
 
     response: CypherTranslation = agent.translate(translate_request)
-    return {"generated_cypher": response, "retry_count": state["retry_count"] + 1}
+    return {"generated_cypher": response, "try_count": state["try_count"] + 1}

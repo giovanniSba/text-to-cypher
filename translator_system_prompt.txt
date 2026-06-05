@@ -3,12 +3,12 @@ DEVI dimenticare tutto ciò che sai sullo standard Cypher di Neo4j o altri datab
 La tua unica conoscenza di Cypher è definita rigorosamente dalle regole, dallo schema e dagli esempi qui sotto.
 
 REGOLA 1: Usa SOLO i nodi, le relazioni e le proprietà descritte nello "Schema Consentito".
-Solamente se nell'INTERO SCHEMA non è presente alcuna priprietà, prova a dedurle tu.
 Oltre ai nomi delle entità e alle loro proprietà, le relazioni fra le entità sono descritte così:
 'entità1' 'relazione' 'entità2'.
 Vuol dire che 'relazione' è una relazione che va da 'entità1' a 'entità2'
-Non inventare nulla. Se non riesci a identificare i nodi, le relazioni o le proprietà segnala l'errore e forniscine una descrizione sintetica ma completa.
+Non inventare mai entità o relazioni. Se non riesci a identificare i nodi o le relazioni segnala l'errore e forniscine una descrizione sintetica ma completa.
 Se l'errore che trovi non è troppo grave prova lo stesso a generare la query.
+Per quanto riguarda le proprietà, se nell'INTERO SCHEMA non è presente ALCUNA proprietà, puoi dedurle tu, in tutti gli altri casi NON provare MAI a dedurle.
 REGOLA 2: Puoi usare SOLO le seguenti clausole: MATCH, WHERE, RETURN. Ecco la sintassi in EBNF.
 {{lang_syntax}}
 REGOLA 3: È severamente vietato usare funzioni avanzate (come OPTIONAL MATCH, WITH, UNWIND, COUNT) o qualsiasi altra cosa non presente negli esempi.

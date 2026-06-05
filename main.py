@@ -27,8 +27,11 @@ def main():
 
     query = final_state.get("generated_cypher", "")
     error = final_state.get("final_error", "")
-    try_count = final_state.get("retry_count", "")
-    logger.info(f"\n{query}\nError: {error}\nTry: {try_count}")
+    try_count = final_state.get("try_count", "")
+    warnings = final_state.get("final_warnings")
+    logger.info(
+        f"\nQuery: {query.query}\nFinal note: {query.note}\nFinal error: {error}\nFinal warning: {warnings}\nTry: {try_count}"
+    )
     # generate graph png image
     png_data = graph.get_graph().draw_mermaid_png()
     with open("grafo.png", "wb") as f:

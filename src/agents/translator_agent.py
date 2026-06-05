@@ -22,7 +22,7 @@ class TranslateRequest(BaseModel):
 
     instruction: str
     retrieved_examples: Examples
-    retrieved_schema: DBSchema
+    retrieved_schema: DBSchema | str
     attempts: AttemptsRecord
     lang_syntax: str | None
 

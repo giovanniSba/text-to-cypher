@@ -15,6 +15,8 @@ def external_schema_fetcher(state: GraphState) -> dict:
     response = requests.get(endpoint, headers={"accept": "application/json"})
     response.raise_for_status()
 
-    schema = parse_owl_to_entities(response.text)
+    # schema = parse_owl_to_entities(response.text)
+    # return {"retrieved_schema": DBSchema(db_schema=schema)}
 
-    return {"retrieved_schema": DBSchema(db_schema=schema)}
+    schema = response.text
+    return {"retrieved_schema": schema}

@@ -1,6 +1,9 @@
+import os
 
 from src.graph.state import Examples, GraphState, QueryExample
 from utils.vector_stores import get_examples_store
+
+EXAMPLE_K_VALUE = int(os.environ.get("EXAMPLE_K_VALUE", "5"))
 
 
 def example_retriever(state: GraphState) -> dict:
@@ -8,7 +11,7 @@ def example_retriever(state: GraphState) -> dict:
     vectorstore = get_examples_store()
 
     instruction = state["instruction"]
-    result = vectorstore.similarity_search(instruction, k=5)
+    result = vectorstore.similarity_search(instruction, k=EXAMPLE_K_VALUE)
 
     examples: list[QueryExample] = []
     for doc in result:

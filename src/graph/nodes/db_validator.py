@@ -1,5 +1,6 @@
 from typing import LiteralString, cast
 
+from neo4j import NotificationSeverity
 from neo4j.exceptions import CypherSyntaxError, CypherTypeError, Neo4jError
 
 from src.graph.state import Attempt, AttemptsRecord, GraphState
@@ -22,26 +23,40 @@ def db_validator(state: GraphState) -> dict:
     validation_query = cast(LiteralString, f"EXPLAIN {query}")
 
     is_valid = False
-    error_message = ""
+    error_message = None
+    warnings: list[str] | None = None
 
     with driver.session() as session:
         try:
-            session.execute_read(lambda tx: tx.run(validation_query).consume())
+            result = session.execute_read(lambda tx: tx.run(validation_query).consume())
+
+            # retrieve generated warnings
+            for stat in result.gql_status_objects:
+                if stat.severity == NotificationSeverity.WARNING:
+                    warnings = warnings or []
+                    warnings.append(stat.status_description)
+
             is_valid = True
 
         except (CypherSyntaxError, CypherTypeError, Neo4jError) as e:
             error_message = e.message
             is_valid = False
 
-    attempt = Attempt(generated_cypher=last_generated_cypher, db_error=error_message)
+    attempt = Attempt(
+        generated_cypher=last_generated_cypher,
+        db_error=error_message,
+        db_warnings=warnings,
+    )
 
     attempts_record.attempts.append(attempt)
 
     # if an error occurred to the last generated query, make another attempt anyway
     if last_generated_cypher.error is not None:
         is_valid = False
+
+    if warnings is not None:
+        is_valid = False
+
     state_update = {"is_valid": is_valid, "attempts": attempts_record}
-    if is_valid:
-        state_update["validated_cypher"] = last_generated_cypher
 
     return state_update

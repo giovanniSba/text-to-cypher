@@ -36,7 +36,7 @@ vectorstore = Chroma.from_texts(
     texts=testi,
     metadatas=metadati,
     embedding=embeddings,
-    persist_directory="./onthology_db",  # Scegli il nome della cartella
+    persist_directory="./ontology_db",  # Scegli il nome della cartella
 )
 
 print("Database vettoriale creato e salvato con successo!")

@@ -1,7 +1,10 @@
 import json
+import os
 
 from src.graph.state import DBEntity, DBSchema, GraphState
 from utils.vector_stores import get_schema_store
+
+SCHEMA_K_VALUE = int(os.environ.get("SCHEMA_K_VALUE", "2"))
 
 
 def schema_retriever(state: GraphState) -> dict:
@@ -17,11 +20,11 @@ def schema_retriever(state: GraphState) -> dict:
     chunks: dict[str, DBEntity] = {}
 
     for entity in entities:
-        result = vectorstore.similarity_search(entity, k=2)
+        result = vectorstore.similarity_search(entity, k=SCHEMA_K_VALUE)
         for doc in result:
             ent = doc.metadata.get("entity", "")
             chunks[ent] = DBEntity(
-                name=doc.metadata.get("entity", ""),
+                name=ent,
                 properties=json.loads(doc.metadata.get("properties", "[]")),
                 relations=json.loads(doc.metadata.get("relations", "[]")),
             )

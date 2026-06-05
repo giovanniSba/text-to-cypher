@@ -50,7 +50,9 @@ class CypherTranslation(BaseModel):
     query: str | None = Field(
         description="La query Cypher finale generata, senza markdown o testo aggiuntivo"
     )
-    note: str | None = Field(description="Note sulla query prodotta.")
+    note: str | None = Field(
+        description="Nota sintetica opzionale sulla query prodotta."
+    )
     error: str | None = Field(
         description="Descrizione di un eventuale errore incontrato durante il processo di traduzione"
     )
@@ -62,13 +64,17 @@ class Attempt(BaseModel):
     generated_cypher: CypherTranslation = Field(
         description="Query cypher generata per instruction"
     )
-    db_error: str = Field(description="Errore generato dalla validazione su database")
+    db_error: str | None = Field(
+        description="Errore generato dalla validazione su database"
+    )
+    db_warnings: list[str] | None = Field(
+        description="Warning non invalidanti generati dalla validazione su databse"
+    )
 
 
 class AttemptsRecord(BaseModel):
     """Attempt list."""
 
-    instruction: str = Field(description="Testo naturale da convertire in query cypher")
     attempts: list[Attempt] = Field(
         description="Tentativi di traduzione eseguiti per instruction"
     )
@@ -79,23 +85,24 @@ class GraphState(TypedDict):
 
     instruction: str  # user input
     generated_cypher: CypherTranslation | None  # translated query
-    validated_cypher: CypherTranslation | None
+    is_valid: bool | None
+    final_warnings: list[str] | None
     final_error: str | None
+    final_note: str | None
+    attempts: AttemptsRecord
     retrieved_entities: Entities | None
     retrieved_examples: Examples | None
-    retrieved_schema: DBSchema | None
+    retrieved_schema: DBSchema | str | None
     ontology_endpoint: str | None
-    attempts: AttemptsRecord
-    is_valid: bool | None
-    retry_count: int
+    try_count: int
 
 
 def create_init_state(instruction: str, ontology_endpoint: str | None) -> GraphState:
     """Return the init state."""
-    attempts = AttemptsRecord(instruction=instruction, attempts=[])
+    attempts = AttemptsRecord(attempts=[])
     init_state = {
         "instruction": instruction,
-        "retry_count": 0,
+        "try_count": 0,
         "attempts": attempts,
         "ontology_endpoint": ontology_endpoint,
     }

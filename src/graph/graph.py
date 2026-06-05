@@ -12,6 +12,7 @@ from langgraph.graph import StateGraph
 from langgraph.graph.state import CompiledStateGraph
 from typing_extensions import TypedDict
 
+from graph.nodes.output_node import output_formatter
 from src.graph.nodes.cypher_generator import cypher_generator
 from src.graph.nodes.db_validator import db_validator
 from src.graph.nodes.entity_retriever import entity_retriever
@@ -39,7 +40,8 @@ def build_graph() -> CompiledStateGraph[GraphState, Any]:
     builder.add_node("example_retriever", node_wrapper(example_retriever))
     builder.add_node("cypher_generator", node_wrapper(cypher_generator))
     builder.add_node("db_validator", node_wrapper(db_validator))
-    builder.add_node("error_handler", error_handler)
+    builder.add_node("error_handler", node_wrapper(error_handler))
+    builder.add_node("output_formatter", node_wrapper(output_formatter))
 
     builder.add_conditional_edges(
         START, schema_router, ["external_schema_fetcher", "entity_retriever"]
@@ -70,7 +72,10 @@ def build_graph() -> CompiledStateGraph[GraphState, Any]:
         ["db_validator", "error_handler"],
     )
     builder.add_conditional_edges(
-        "db_validator", validator_router, [END, "error_handler", "cypher_generator"]
+        "db_validator",
+        validator_router,
+        ["output_formatter", "error_handler", "cypher_generator"],
     )
+    builder.add_edge("output_formatter", END)
 
     return builder.compile(name="ttc-graph")
