@@ -3,15 +3,14 @@ import os
 from src.graph.state import Examples, GraphState, QueryExample
 from utils.vector_stores import get_examples_store
 
-EXAMPLE_K_VALUE = int(os.environ.get("EXAMPLE_K_VALUE", "5"))
-
 
 def example_retriever(state: GraphState) -> dict:
     """Extract correct entities from DB schema."""
+    config = state.get("config_params")
     vectorstore = get_examples_store()
 
     instruction = state["instruction"]
-    result = vectorstore.similarity_search(instruction, k=EXAMPLE_K_VALUE)
+    result = vectorstore.similarity_search(instruction, k=config.example_k_value)
 
     examples: list[QueryExample] = []
     for doc in result:

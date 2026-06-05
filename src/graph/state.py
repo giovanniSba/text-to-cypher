@@ -83,6 +83,16 @@ class AttemptsRecord(BaseModel):
     )
 
 
+class GraphConfig(BaseModel):
+    """Graph config params."""
+
+    ontology_endpoint: str | None = None
+    enable_owl_parsing: bool = False
+    example_k_value: int = 5
+    schema_k_value: int = 2
+    max_gen_attempts: int = 3
+
+
 class GraphState(TypedDict):
     """Input state for the agent."""
 
@@ -96,18 +106,22 @@ class GraphState(TypedDict):
     retrieved_entities: Entities | None
     retrieved_examples: Examples | None
     retrieved_schema: DBSchema | str | None
-    ontology_endpoint: str | None
     try_count: int
 
+    # config parameters
+    config_params: GraphConfig
 
-def create_init_state(instruction: str, ontology_endpoint: str | None) -> GraphState:
+
+def create_init_state(
+    instruction: str, config_params: GraphConfig | None = GraphConfig()
+) -> GraphState:
     """Return the init state."""
     attempts = AttemptsRecord(attempts=[])
     init_state = {
         "instruction": instruction,
         "try_count": 0,
         "attempts": attempts,
-        "ontology_endpoint": ontology_endpoint,
+        "config_params": config_params,
     }
 
     return cast(GraphState, init_state)

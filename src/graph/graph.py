@@ -25,15 +25,9 @@ from src.graph.nodes.schema_retriever import schema_retriever
 from src.graph.state import GraphState
 
 
-class Context(TypedDict):
-    """Context parameters for the agent."""
-
-    my_configurable_param: str
-
-
 def build_graph() -> CompiledStateGraph[GraphState, Any]:
     """Return a compiled graph."""
-    builder = StateGraph(GraphState, context_schema=Context)
+    builder = StateGraph(GraphState)
     builder.add_node("external_schema_fetcher", node_wrapper(external_schema_fetcher))
     builder.add_node("entity_retriever", node_wrapper(entity_retriever))
     builder.add_node("schema_retriever", node_wrapper(schema_retriever))

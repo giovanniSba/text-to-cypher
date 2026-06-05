@@ -21,6 +21,7 @@ def get_model():
             model=DEFAULT_MODEL_ID,
             temperature=TEMPERATURE,
         )
+
     return _model
 
 

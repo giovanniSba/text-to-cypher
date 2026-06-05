@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from loguru import logger
 
 from src.graph.graph import build_graph
-from src.graph.state import create_init_state
+from src.graph.state import GraphConfig, create_init_state
 from utils.neo4j import close_driver
 
 load_dotenv()
@@ -17,7 +17,7 @@ def main():
     instruction = input("Query: ")
     init_state = create_init_state(
         instruction,
-        ontology_endpoint=ONTOLOGY_ENDPOINT,
+        GraphConfig(),
     )
 
     graph = build_graph()
