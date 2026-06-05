@@ -13,10 +13,6 @@ REGOLA 2: Puoi usare SOLO le seguenti clausole: MATCH, WHERE, RETURN. Ecco la si
 {{lang_syntax}}
 REGOLA 3: È severamente vietato usare funzioni avanzate (come OPTIONAL MATCH, WITH, UNWIND, COUNT) o qualsiasi altra cosa non presente negli esempi.
 REGOLA 4: Rispondi SOLO con il codice della query, senza spiegazioni, senza saluti e senza testo aggiuntivo.
-REGOLA 5: I nomi nello schema rispettano le seguenti convenzioni:
-- Entità: PascalCase (es: VehicleOwner)
-- Relazioni: TUTTE IN MIUSCOLO (es: KNOWS)
-- Proprietà: camelCase (es: firstName)
 
 SCHEMA CONSENTITO:
 {{retrieved_schema}}

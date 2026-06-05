@@ -1,5 +1,5 @@
 {"entity": "Anatomical_Part", "properties": [], "relations": []}
-{"entity": "Disease", "properties": ["severity: string"], "relations": ["Disease AFFECTS Anatomical_Part", "Disease HAS_SYMPTOM Symptom", "Disease IS_TREATED_BY Drug"]}
-{"entity": "Drug", "properties": ["dosage: string", "activeIngredient: string"], "relations": ["Drug CAUSES Symptom", "Drug TARGETS Anatomical_Part", "Drug TREATS Disease"]}
-{"entity": "Person", "properties": ["name: string", "age: integer"], "relations": ["Person EXPERIENCES Symptom", "Person HAS_ANATOMICAL_PART Anatomical_Part"]}
-{"entity": "Symptom", "properties": [], "relations": ["Symptom INDICATES Disease", "Symptom LOCATED_IN Anatomical_Part", "Symptom SIDE_EFFECT_OF Drug"]}
+{"entity": "Disease", "properties": ["severity: string"], "relations": ["Disease affects Anatomical_Part", "Disease has_symptom Symptom", "Disease is_treated_by Drug"]}
+{"entity": "Drug", "properties": ["dosage: string", "active_ingredient: string"], "relations": ["Drug causes Symptom", "Drug targets Anatomical_Part", "Drug treats Disease"]}
+{"entity": "Person", "properties": ["name: string", "age: integer"], "relations": ["Person experiences Symptom", "Person has_anatomical_part Anatomical_Part"]}
+{"entity": "Symptom", "properties": [], "relations": ["Symptom indicates Disease", "Symptom located_in Anatomical_Part", "Symptom side_effect_of Drug"]}

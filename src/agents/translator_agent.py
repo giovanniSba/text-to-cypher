@@ -76,7 +76,7 @@ class TranslatorAgent:
             )
         else:
             human_message_prompt = HumanMessagePromptTemplate.from_template(
-                "Riprova a tradurre '{{instruction}}', in precedenza hai prodotto i seguenti tentativi: \n {{attempts}}",
+                "Riprova a tradurre '{{instruction}}', in precedenza hai prodotto i seguenti tentativi: \n {{attempts}}\n scrivi nella nota cos'hai cambiato",
                 template_format="jinja2",
             )
 
@@ -89,5 +89,4 @@ class TranslatorAgent:
 
         # format system prompt with entities and examples and pass the result to the llm
         response = translator_chain.invoke(translate_request.model_dump())
-
         return cast(CypherTranslation, response)

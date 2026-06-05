@@ -4,7 +4,7 @@ from graph.state import GraphState
 
 def output_formatter(state: GraphState) -> dict:
     """Fill empty field of the final state."""
-    last_attempt = state["attempts"].attempts.pop()
+    last_attempt = state["attempts"].attempts[-1]
 
     try_count = state.get("try_count", 0)
     if try_count > MAX_ATTEMPTS:

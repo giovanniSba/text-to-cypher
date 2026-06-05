@@ -8,7 +8,7 @@ from src.graph.state import GraphState
 def node_wrapper(node_func):
     """Node for centralized error handling and logging."""
 
-    @functools.wraps(node_func)  # keep __name__
+    @functools.wraps(node_func)  # keep __name__ and __module__
     def wrapper(state: GraphState, *args, **kwargs):
         node_name = node_func.__name__
         module_name = node_func.__module__

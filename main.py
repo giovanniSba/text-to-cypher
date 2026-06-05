@@ -30,7 +30,7 @@ def main():
     try_count = final_state.get("try_count", "")
     warnings = final_state.get("final_warnings")
     logger.info(
-        f"\nQuery: {query.query}\nFinal note: {query.note}\nFinal error: {error}\nFinal warning: {warnings}\nTry: {try_count}"
+        f"\nQuery: {query.query}\nFinal note: {query.note}\nFinal error: {error}\nFinal warning: {warnings}\nTry: {try_count}\nGenerated: {final_state.get('attempts').attempts}"
     )
     # generate graph png image
     png_data = graph.get_graph().draw_mermaid_png()

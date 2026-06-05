@@ -50,6 +50,9 @@ class CypherTranslation(BaseModel):
     query: str | None = Field(
         description="La query Cypher finale generata, senza markdown o testo aggiuntivo"
     )
+    description: str | None = Field(
+        description="Descrizione sintetica della query prodotta. Campo obbligatorio nel caso in cui ci sia la query."
+    )
     note: str | None = Field(
         description="Nota sintetica opzionale sulla query prodotta."
     )
