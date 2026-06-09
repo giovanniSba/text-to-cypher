@@ -36,7 +36,7 @@ class TranslatorAgent:
 
     def __init__(
         self,
-        system_prompt_path: str,
+        system_prompt: str,
         model,
     ):
         """Create a translator for text to cypher."""
@@ -44,16 +44,12 @@ class TranslatorAgent:
         self._lang_syntax = ""
         self._system_prompt = ""
 
-        prompt_file = Path(system_prompt_path)
         syntax_file = Path("syntax_placeholder.txt")
-
-        if not prompt_file.is_file():
-            raise FileNotFoundError(f"{prompt_file} not found")
 
         if not syntax_file.is_file():
             raise FileNotFoundError(f"{syntax_file} not found")
 
-        self._system_prompt = prompt_file.read_text(encoding="utf-8")
+        self._system_prompt = system_prompt
 
         self._lang_syntax = syntax_file.read_text(encoding="utf-8")
 

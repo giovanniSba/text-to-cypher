@@ -1,13 +1,18 @@
-from src.agents.agents import get_translator_agent
+from langgraph.pregel.protocol import RunnableConfig
+
+from api import AppDependencies
 from src.agents.translator_agent import (
     TranslateRequest,
 )
 from src.graph.state import CypherTranslation, GraphState
 
 
-def cypher_generator(state: GraphState) -> dict:
+def cypher_generator(state: GraphState, config: RunnableConfig) -> dict:
     """Translate text to cypher."""
-    agent = get_translator_agent()
+    configurable = config.get("configurable", {})
+    deps: AppDependencies = configurable["deps"]
+
+    agent = deps.translator_agent
 
     examples = state.get("retrieved_examples")
     schema = state.get("retrieved_schema")

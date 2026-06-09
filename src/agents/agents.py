@@ -1,11 +1,9 @@
 import os
+from functools import lru_cache
+from pathlib import Path
 
 from agents.entity_retriever_agent import EntityRetrieverAgent
 from agents.translator_agent import TranslatorAgent
-from model.model import get_model
-
-_entity_retriever_agent = None
-_translator_agent = None
 
 ENTITY_RETRIEVER_SYSTEM_PROMPT_PATH = os.environ.get(
     "ENTITY_RETRIEVER_SYSTEM_PROMPT_PATH", ""
@@ -14,19 +12,26 @@ ENTITY_RETRIEVER_SYSTEM_PROMPT_PATH = os.environ.get(
 TRANSLATOR_SYSTEM_PROMPT_PATH = os.environ.get("TRANSLATOR_SYSTEM_PROMPT_PATH", "")
 
 
-def get_entity_retriever_agent():
-    """Singleton instance of entity retriever agent."""
-    global _entity_retriever_agent
-    if _entity_retriever_agent is None:
-        _entity_retriever_agent = EntityRetrieverAgent(
-            ENTITY_RETRIEVER_SYSTEM_PROMPT_PATH, get_model()
-        )
-    return _entity_retriever_agent
+@lru_cache(maxsize=5)
+def get_cached_file_content(file_path: str) -> str:
+    """Load a file (cached)."""
+    path = Path(file_path)
+    if not path.is_file():
+        raise FileNotFoundError(f"{path} not found")
+
+    return path.read_text(encoding="utf-8")
 
 
-def get_translator_agent():
-    """Singleton instance of translator agent."""
-    global _translator_agent
-    if _translator_agent is None:
-        _translator_agent = TranslatorAgent(TRANSLATOR_SYSTEM_PROMPT_PATH, get_model())
-    return _translator_agent
+def get_entity_retriever_agent(llm) -> EntityRetrieverAgent:
+    """Create a new entity retriver agent injecting the model."""
+    return EntityRetrieverAgent(
+        system_prompt=get_cached_file_content(ENTITY_RETRIEVER_SYSTEM_PROMPT_PATH),
+        model=llm,
+    )
+
+
+def get_translator_agent(llm) -> TranslatorAgent:
+    """Create a new translator agent injecting the model."""
+    return TranslatorAgent(
+        system_prompt=get_cached_file_content(TRANSLATOR_SYSTEM_PROMPT_PATH), model=llm
+    )

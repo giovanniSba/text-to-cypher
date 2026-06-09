@@ -1,14 +1,19 @@
 import json
-import os
 
+from langgraph.pregel.protocol import RunnableConfig
+
+from api import AppDependencies
+from src.graph.config import GraphConfig
 from src.graph.state import DBEntity, DBSchema, GraphState
-from utils.vector_stores import get_schema_store
 
 
-def schema_retriever(state: GraphState) -> dict:
+def schema_retriever(state: GraphState, config: RunnableConfig) -> dict:
     """Retrieve the schema from the schema vector DB."""
-    config = state.get("config_params")
-    vectorstore = get_schema_store()
+    configurable = config.get("configurable", {})
+    deps: AppDependencies = configurable["deps"]
+    graph_config: GraphConfig = configurable["graph_config"]
+
+    vectorstore = deps.schema_store
     raw_entities = state.get("retrieved_entities", None)
 
     if raw_entities is None:
@@ -19,7 +24,7 @@ def schema_retriever(state: GraphState) -> dict:
     chunks: dict[str, DBEntity] = {}
 
     for entity in entities:
-        result = vectorstore.similarity_search(entity, k=config.schema_k_value)
+        result = vectorstore.similarity_search(entity, k=graph_config.schema_k_value)
         for doc in result:
             ent = doc.metadata.get("entity", "")
             chunks[ent] = DBEntity(

@@ -1,16 +1,21 @@
 from typing import LiteralString, cast
 
+from langgraph.pregel.protocol import RunnableConfig
 from neo4j import NotificationSeverity
 from neo4j.exceptions import CypherSyntaxError, CypherTypeError, Neo4jError
 
+from api import AppDependencies
 from src.graph.state import Attempt, AttemptsRecord, GraphState
-from utils.neo4j import get_driver
 
 
-def db_validator(state: GraphState) -> dict:
+def db_validator(state: GraphState, config: RunnableConfig) -> dict:
     """Validate genated cypher query in neo4j database and generate the attempt."""
     attempts_record: AttemptsRecord = state["attempts"]
-    driver = get_driver()
+
+    configurable = config.get("configurable", {})
+    deps: AppDependencies = configurable["deps"]
+
+    driver = deps.neo4j_driver
 
     last_generated_cypher = state.get("generated_cypher", None)
     if last_generated_cypher is None:

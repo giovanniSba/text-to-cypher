@@ -1,16 +1,20 @@
-import os
+from langgraph.pregel.protocol import RunnableConfig
 
+from api import AppDependencies
+from graph.config import GraphConfig
 from src.graph.state import Examples, GraphState, QueryExample
-from utils.vector_stores import get_examples_store
 
 
-def example_retriever(state: GraphState) -> dict:
+def example_retriever(state: GraphState, config: RunnableConfig) -> dict:
     """Extract correct entities from DB schema."""
-    config = state.get("config_params")
-    vectorstore = get_examples_store()
+    configurable = config.get("configurable", {})
+    deps: AppDependencies = configurable["deps"]
 
+    graph_config: GraphConfig = configurable["graph_config"]
+
+    vectorstore = deps.example_store
     instruction = state["instruction"]
-    result = vectorstore.similarity_search(instruction, k=config.example_k_value)
+    result = vectorstore.similarity_search(instruction, k=graph_config.example_k_value)
 
     examples: list[QueryExample] = []
     for doc in result:
