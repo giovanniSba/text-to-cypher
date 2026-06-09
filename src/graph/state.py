@@ -14,25 +14,36 @@ class Examples(BaseModel):
     """Example list."""
 
     examples: list[QueryExample] = Field(
-        description="Una lista di esempi simili alla richiesta dell'utente"
+        description="Una lista di esempi simili alla richiesta dell'utente."
     )
 
 
 class Entities(BaseModel):
     """List of entities involved."""
 
-    entities: list[str] = Field(
-        description="Una lista di entità rilevanti estratte dal testo"
+    inner: set[str] = Field(
+        description="Un set di entità rilevanti estratte dal testo.", default=set()
+    )
+
+
+class EntitiesRecord(BaseModel):
+    """Keep track for the total entities retrieved and for the last new entities found. Allows backtracking."""
+
+    last_added_entities: Entities = Field(
+        description="Le ultime nuove entità aggiunte.", default=Entities()
+    )
+    retrieved_entities: Entities = Field(
+        description="Tutte le entità trovate.", default=Entities()
     )
 
 
 class DBEntity(BaseModel):
     """Representation of entities in the database."""
 
-    name: str = Field(description="Nome dell'entità")
-    properties: list[str] = Field(description="Proprietà dell'entità")
+    name: str = Field(description="Nome dell'entità.")
+    properties: list[str] = Field(description="Proprietà dell'entità.")
     relations: list[str] = Field(
-        description="Relazioni dell'entità con le altre entità dello schema"
+        description="Relazioni dell'entità con le altre entità dello schema."
     )
 
 
@@ -48,7 +59,7 @@ class CypherTranslation(BaseModel):
     """Result of a text-to-cypher translation."""
 
     query: str | None = Field(
-        description="La query Cypher finale generata, senza markdown o testo aggiuntivo"
+        description="La query Cypher finale generata, senza markdown o testo aggiuntivo."
     )
     description: str | None = Field(
         description="Descrizione sintetica della query prodotta. Campo obbligatorio nel caso in cui ci sia la query."
@@ -57,7 +68,10 @@ class CypherTranslation(BaseModel):
         description="Nota sintetica opzionale sulla query prodotta."
     )
     error: str | None = Field(
-        description="Descrizione di un eventuale errore incontrato durante il processo di traduzione"
+        description="Descrizione di un eventuale errore incontrato durante il processo di traduzione."
+    )
+    discover_new_entities: bool = Field(
+        description="True se entità, relazioni, o proprietà nello schema non sono sufficienti per tradurre la query."
     )
 
 
@@ -71,7 +85,7 @@ class Attempt(BaseModel):
         description="Errore generato dalla validazione su database"
     )
     db_warnings: list[str] | None = Field(
-        description="Warning non invalidanti generati dalla validazione su databse"
+        description="Warning non invalidanti generati dalla validazione su database"
     )
 
 
@@ -93,7 +107,7 @@ class GraphState(TypedDict):
     final_error: str | None
     final_note: str | None
     attempts: AttemptsRecord
-    retrieved_entities: Entities | None
+    entities_record: EntitiesRecord | None
     retrieved_examples: Examples | None
     retrieved_schema: DBSchema | str | None
     try_count: int
@@ -102,10 +116,15 @@ class GraphState(TypedDict):
 def create_init_state(instruction: str) -> GraphState:
     """Return the init state."""
     attempts = AttemptsRecord(attempts=[])
+    entities_record = EntitiesRecord(
+        last_added_entities=Entities(inner=set(())),
+        retrieved_entities=Entities(inner=set(())),
+    )
     init_state = {
         "instruction": instruction,
         "try_count": 0,
         "attempts": attempts,
+        "entities_record": entities_record,
     }
 
     return cast(GraphState, init_state)

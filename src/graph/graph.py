@@ -19,7 +19,12 @@ from src.graph.nodes.error_nodes import error_handler
 from src.graph.nodes.example_retriever import example_retriever
 from src.graph.nodes.external_schema_fetcher import external_schema_fetcher
 from src.graph.nodes.node_wrapper import node_wrapper
-from src.graph.nodes.router import global_router, schema_router, validator_router
+from src.graph.nodes.router import (
+    cypher_generation_router,
+    global_router,
+    schema_router,
+    validator_router,
+)
 from src.graph.nodes.schema_retriever import schema_retriever
 from src.graph.state import GraphState
 
@@ -36,14 +41,18 @@ def build_graph() -> CompiledStateGraph[GraphState, Any]:
     builder.add_node("error_handler", node_wrapper(error_handler))
     builder.add_node("output_formatter", node_wrapper(output_formatter))
 
+    builder.add_edge(START, "example_retriever")
     builder.add_conditional_edges(
-        START, schema_router, ["external_schema_fetcher", "entity_retriever"]
+        "example_retriever",
+        schema_router,
+        ["entity_retriever", "external_schema_fetcher"],
     )
     builder.add_conditional_edges(
         "external_schema_fetcher",
-        lambda state: global_router(state, "example_retriever"),
-        ["example_retriever", "error_handler"],
+        lambda state: global_router(state, "cypher_generator"),
+        ["cypher_generator", "error_handler"],
     )
+
     builder.add_conditional_edges(
         "entity_retriever",
         lambda state: global_router(state, "schema_retriever"),
@@ -51,18 +60,14 @@ def build_graph() -> CompiledStateGraph[GraphState, Any]:
     )
     builder.add_conditional_edges(
         "schema_retriever",
-        lambda state: global_router(state, "example_retriever"),
-        ["example_retriever", "error_handler"],
-    )
-    builder.add_conditional_edges(
-        "example_retriever",
         lambda state: global_router(state, "cypher_generator"),
         ["cypher_generator", "error_handler"],
     )
+
     builder.add_conditional_edges(
         "cypher_generator",
-        lambda state: global_router(state, "db_validator"),
-        ["db_validator", "error_handler"],
+        lambda state: cypher_generation_router(state),
+        ["db_validator", "error_handler", "entity_retriever"],
     )
     builder.add_conditional_edges(
         "db_validator",

@@ -3,7 +3,7 @@ import json
 from langgraph.pregel.protocol import RunnableConfig
 
 from src.graph.config import AppDependencies, GraphConfig
-from src.graph.state import DBEntity, DBSchema, GraphState
+from src.graph.state import DBEntity, DBSchema, Entities, EntitiesRecord, GraphState
 
 
 def schema_retriever(state: GraphState, config: RunnableConfig) -> dict:
@@ -12,28 +12,48 @@ def schema_retriever(state: GraphState, config: RunnableConfig) -> dict:
     deps: AppDependencies = configurable["deps"]
     graph_config: GraphConfig = configurable["graph_config"]
 
+    updated_schema: list[DBEntity] = []
+    already_retrieved_schema = state.get("retrieved_schema")
+    match already_retrieved_schema:
+        case DBSchema():
+            updated_schema = already_retrieved_schema.db_schema
+        case _:
+            pass
+
     vectorstore = deps.schema_store
-    raw_entities = state.get("retrieved_entities", None)
+    entities_record = state.get("entities_record") or EntitiesRecord()
 
-    if raw_entities is None:
-        raise ValueError("Error: retrieved empty is None.")
+    new_entities = entities_record.last_added_entities.inner
 
-    entities = raw_entities.entities
+    schema_update: dict[str, DBEntity] = {}
+    last_entity_added_updated = Entities()
 
-    chunks: dict[str, DBEntity] = {}
-
-    for entity in entities:
+    # search for only for new entities in the vector DB
+    for entity in new_entities:
         result = vectorstore.similarity_search(entity, k=graph_config.schema_k_value)
         for doc in result:
             ent = doc.metadata.get("entity", "")
-            chunks[ent] = DBEntity(
+            last_entity_added_updated.inner.add(
+                ent
+            )  # add the actual name of the retrieved entity
+
+            schema_update[ent] = DBEntity(
                 name=ent,
                 properties=json.loads(doc.metadata.get("properties", "[]")),
                 relations=json.loads(doc.metadata.get("relations", "[]")),
             )
-    schema: list[DBEntity] = []
-    for _key, ent in chunks.items():
-        schema.append(ent)
 
-    retrieved_schema = DBSchema(db_schema=schema)
-    return {"retrieved_schema": retrieved_schema}
+    for _key, ent in schema_update.items():
+        updated_schema.append(ent)
+
+    entities_record.last_added_entities = last_entity_added_updated
+    entities_record.retrieved_entities.inner = (
+        entities_record.retrieved_entities.inner | last_entity_added_updated.inner
+    )  # update the retrieved entities
+
+    retrieved_schema = DBSchema(db_schema=updated_schema)
+    print(f"Nuove entità: {last_entity_added_updated.inner}")
+    return {
+        "retrieved_schema": retrieved_schema,
+        "entities_record": entities_record,
+    }
