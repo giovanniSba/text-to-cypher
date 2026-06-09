@@ -4,7 +4,7 @@ from langgraph.pregel.protocol import RunnableConfig
 from neo4j import NotificationSeverity
 from neo4j.exceptions import CypherSyntaxError, CypherTypeError, Neo4jError
 
-from api import AppDependencies
+from src.graph.config import AppDependencies
 from src.graph.state import Attempt, AttemptsRecord, GraphState
 
 

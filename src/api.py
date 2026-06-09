@@ -1,18 +1,14 @@
-from dataclasses import dataclass
 from typing import cast
 
 from fastapi import Depends, FastAPI, HTTPException
 from langchain_chroma.vectorstores import Chroma
 from langchain_core.language_models import BaseChatModel
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langgraph.pregel.protocol import RunnableConfig
 from loguru import logger
 from neo4j import Driver
 from pydantic import BaseModel
 
 from agents.agents import get_entity_retriever_agent, get_translator_agent
-from agents.entity_retriever_agent import EntityRetrieverAgent
-from agents.translator_agent import TranslatorAgent
 from graph.config import AppDependencies
 from model.model import get_llm
 from src.graph.config import GraphConfig
@@ -74,7 +70,7 @@ async def translate_text_to_cypher(
         # create context
         config = RunnableConfig(
             configurable={
-                "deps": deps,  # dependencies
+                "deps": deps,
                 "graph_config": request.config,
             }
         )

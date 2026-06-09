@@ -1,7 +1,7 @@
 from langgraph.pregel.protocol import RunnableConfig
 
-from api import AppDependencies
 from graph.config import GraphConfig
+from src.graph.config import AppDependencies
 from src.graph.state import Examples, GraphState, QueryExample
 
 

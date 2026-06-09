@@ -10,7 +10,6 @@ from typing import Any
 from langgraph.constants import END, START
 from langgraph.graph import StateGraph
 from langgraph.graph.state import CompiledStateGraph
-from typing_extensions import TypedDict
 
 from graph.nodes.output_node import output_formatter
 from src.graph.nodes.cypher_generator import cypher_generator

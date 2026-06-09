@@ -2,8 +2,7 @@ import json
 
 from langgraph.pregel.protocol import RunnableConfig
 
-from api import AppDependencies
-from src.graph.config import GraphConfig
+from src.graph.config import AppDependencies, GraphConfig
 from src.graph.state import DBEntity, DBSchema, GraphState
 
 

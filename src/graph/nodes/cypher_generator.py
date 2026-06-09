@@ -1,9 +1,9 @@
 from langgraph.pregel.protocol import RunnableConfig
 
-from api import AppDependencies
 from src.agents.translator_agent import (
     TranslateRequest,
 )
+from src.graph.config import AppDependencies
 from src.graph.state import CypherTranslation, GraphState
 
 

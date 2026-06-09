@@ -1,7 +1,6 @@
 import os
 from typing import cast
 
-from google.genai._interactions._utils import lru_cache
 from langchain.chat_models import init_chat_model
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 

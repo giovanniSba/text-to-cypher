@@ -17,7 +17,7 @@ def external_schema_fetcher(state: GraphState, config: RunnableConfig) -> dict:
         raise ValueError("Endpoint not found.")
 
     # http request
-    response = requests.get(endpoint, headers={"accept": "application/json"})
+    response = requests.get(str(endpoint), headers={"accept": "application/json"})
     response.raise_for_status()
 
     if graph_config.enable_owl_parsing:

@@ -4,8 +4,7 @@ from dotenv import load_dotenv
 from loguru import logger
 
 from src.graph.graph import build_graph
-from src.graph.state import GraphConfig, create_init_state
-from utils.neo4j import close_driver
+from src.graph.state import create_init_state
 
 load_dotenv()
 logger.add("text-to-cypher.log", rotation="20 MB")
@@ -30,7 +29,6 @@ def main():
     )
     init_state = create_init_state(
         instruction,
-        config,
     )
 
     graph = build_graph()

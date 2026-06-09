@@ -2,7 +2,6 @@ import os
 from functools import lru_cache
 
 from langchain_chroma.vectorstores import Chroma
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
 
 from model.model import get_embedding_model
 
