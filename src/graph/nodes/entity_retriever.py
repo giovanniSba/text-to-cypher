@@ -21,7 +21,7 @@ def entity_retriever(state: GraphState, config: RunnableConfig) -> dict:
             filtered_schema = [
                 ent for ent in schema.db_schema if ent.name in last_entities.inner
             ]
-            text = f"Schema:\n{DBSchema(db_schema=filtered_schema)}"  # search only for new detected entities
+            text = f"Schema:\n{DBSchema(db_schema=filtered_schema)}\nAlreadyRetrieved: {already_retrieved_entities.inner}"  # search only for new detected entities
             # text = f"Schema: \n{schema}"
         case _:
             text = state["instruction"]

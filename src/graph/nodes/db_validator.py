@@ -9,7 +9,7 @@ from src.graph.state import Attempt, AttemptsRecord, GraphState
 
 
 def db_validator(state: GraphState, config: RunnableConfig) -> dict:
-    """Validate genated cypher query in neo4j database and generate the attempt."""
+    """Validate generated cypher query in neo4j database and generate the attempt."""
     attempts_record: AttemptsRecord = state["attempts"]
 
     configurable = config.get("configurable", {})

@@ -107,7 +107,7 @@ class GraphState(TypedDict):
     final_error: str | None
     final_note: str | None
     attempts: AttemptsRecord
-    entities_record: EntitiesRecord | None
+    entities_record: EntitiesRecord
     retrieved_examples: Examples | None
     retrieved_schema: DBSchema | str | None
     try_count: int

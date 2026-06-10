@@ -9,17 +9,6 @@ from agents.entity_retriever_agent import EntityRetrieverAgent
 from agents.translator_agent import TranslatorAgent
 
 
-@dataclass
-class AppDependencies:
-    """FastAPI App dependencies."""
-
-    neo4j_driver: Driver
-    schema_store: Chroma
-    example_store: Chroma
-    entity_agent: EntityRetrieverAgent
-    translator_agent: TranslatorAgent
-
-
 class GraphConfig(BaseModel):
     """Graph config parameters."""
 
@@ -31,6 +20,10 @@ class GraphConfig(BaseModel):
 
     enable_owl_parsing: bool = Field(
         default=False, description="Whether to enable parsing of OWL files."
+    )
+    allow_data_properties_deduction: bool = Field(
+        default=False,
+        description="True if data properties in the schema can be deduced by the LLM.",
     )
 
     example_k_value: int = Field(
@@ -56,6 +49,18 @@ class GraphConfig(BaseModel):
         default=3,
         ge=1,
         le=5,
+        description="The maximum number of entity retrieving attempts.",
     )
 
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
+
+@dataclass
+class AppDependencies:
+    """FastAPI App dependencies."""
+
+    neo4j_driver: Driver
+    schema_store: Chroma
+    example_store: Chroma
+    entity_agent: EntityRetrieverAgent
+    translator_agent: TranslatorAgent

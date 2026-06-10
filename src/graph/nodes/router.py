@@ -41,8 +41,9 @@ def cypher_generation_router(state: GraphState, config: RunnableConfig) -> str:
         raise ValueError("Generated cypher is none")
 
     if (
-        entity_retr_count >= graph_config.max_entity_retr_attempts
-        or not generated_cypher.discover_new_entities
+        entity_retr_count
+        >= graph_config.max_entity_retr_attempts  # max attempts reached
+        or not generated_cypher.discover_new_entities  # don't discover any new entity
     ):
         next = "db_validator"
     else:

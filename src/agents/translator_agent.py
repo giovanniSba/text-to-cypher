@@ -25,6 +25,7 @@ class TranslateRequest(BaseModel):
     retrieved_schema: DBSchema | str
     attempts: AttemptsRecord
     lang_syntax: str | None
+    allow_data_properties_deduction: bool = False
 
 
 class TranslatorAgent:
@@ -68,11 +69,12 @@ class TranslatorAgent:
         attempts_record = translate_request.attempts
         if not attempts_record.attempts:
             human_message_prompt = HumanMessagePromptTemplate.from_template(
-                "Traduci: {{instruction}}", template_format="jinja2"
+                "Traduci: {{instruction}}\nDeduzioneProprietà: {{allow_data_properties_deduction}}",
+                template_format="jinja2",
             )
         else:
             human_message_prompt = HumanMessagePromptTemplate.from_template(
-                "Riprova a tradurre '{{instruction}}', in precedenza hai prodotto i seguenti tentativi: \n {{attempts}}\n scrivi nella nota cos'hai cambiato",
+                "Riprova a tradurre '{{instruction}}', in precedenza hai prodotto i seguenti tentativi: \n {{attempts}}\n scrivi nella nota cos'hai cambiato\nDeduzioneProprietà: {{allow_data_properties_deduction}}",
                 template_format="jinja2",
             )
 

@@ -10,10 +10,10 @@ TEMPERATURE: int = cast(int, os.environ.get("TEMPERATURE", 0))
 TOP_P: float = cast(float, os.environ.get("TOP_P", 0.9))
 
 
-def get_llm():
+def get_llm(model_id: str | None = DEFAULT_MODEL_ID):
     """Create an LLM instance for the request."""
     return init_chat_model(
-        model=DEFAULT_MODEL_ID,
+        model=model_id,
         temperature=TEMPERATURE,
     )
 
