@@ -3,9 +3,7 @@ import os
 from dotenv import load_dotenv
 from loguru import logger
 
-from graph.config import GraphConfig
 from src.graph.graph import build_graph
-from src.graph.state import create_init_state
 
 load_dotenv()
 logger.add("text-to-cypher.log", rotation="20 MB")

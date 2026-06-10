@@ -1,9 +1,7 @@
-from langgraph.pregel.main import Graph
 from langgraph.pregel.protocol import RunnableConfig
 
-from graph.nodes.db_validator import db_validator
 from src.graph.config import GraphConfig
-from src.graph.state import CypherTranslation, GraphState
+from src.graph.state import GraphState
 
 
 def validator_router(state: GraphState, config: RunnableConfig) -> str:
@@ -11,7 +9,7 @@ def validator_router(state: GraphState, config: RunnableConfig) -> str:
     configurable = config.get("configurable", {})
     graph_config: GraphConfig = configurable["graph_config"]
 
-    if state["try_count"] > graph_config.max_gen_attempts or state["is_valid"]:
+    if state["try_count"] >= graph_config.max_gen_attempts or state["is_valid"]:
         next = "output_formatter"
     else:
         next = "cypher_generator"
@@ -43,7 +41,7 @@ def cypher_generation_router(state: GraphState, config: RunnableConfig) -> str:
         raise ValueError("Generated cypher is none")
 
     if (
-        entity_retr_count > graph_config.max_entity_retr_attempts
+        entity_retr_count >= graph_config.max_entity_retr_attempts
         or not generated_cypher.discover_new_entities
     ):
         next = "db_validator"

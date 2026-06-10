@@ -29,4 +29,9 @@ def cypher_generator(state: GraphState, config: RunnableConfig) -> dict:
     )
 
     response: CypherTranslation = agent.translate(translate_request)
-    return {"generated_cypher": response, "try_count": state["try_count"] + 1}
+    new_count = state.get("try_count", 0)
+    # only increment count when the query can pass to the validator node
+    if not response.discover_new_entities:
+        new_count += 1
+
+    return {"generated_cypher": response, "try_count": new_count}

@@ -55,6 +55,7 @@ class TranslationResponse(BaseModel):
     error: str | None
     warnings: list[str] | None
     try_count: int = 0
+    entity_retr_count: int = 0
 
 
 @app.post("/translate", response_model=TranslationResponse)
@@ -83,11 +84,16 @@ async def translate_text_to_cypher(
         final_error = final_state.get("final_error", "")
         final_warnings = final_state.get("final_warnings", [])
         try_count = final_state.get("try_count", 0)
+        entity_retr_count = final_state.get("entity_retr_count", 0)
 
         logger.success(final_state)
 
         return TranslationResponse(
-            query=query, error=final_error, warnings=final_warnings, try_count=try_count
+            query=query,
+            error=final_error,
+            warnings=final_warnings,
+            try_count=try_count,
+            entity_retr_count=entity_retr_count,
         )
     except Exception as e:
         logger.error(f"Error during API reponse: {e}")
