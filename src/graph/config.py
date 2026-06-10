@@ -52,5 +52,10 @@ class GraphConfig(BaseModel):
         le=5,
         description="The maximum number of attempts to correct the Cypher query in case of a syntax error.",
     )
+    max_entity_retr_attempts: int = Field(
+        default=3,
+        ge=1,
+        le=5,
+    )
 
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)

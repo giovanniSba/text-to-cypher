@@ -1,3 +1,4 @@
+from langgraph.pregel.main import Graph
 from langgraph.pregel.protocol import RunnableConfig
 
 from graph.nodes.db_validator import db_validator
@@ -10,12 +11,12 @@ def validator_router(state: GraphState, config: RunnableConfig) -> str:
     configurable = config.get("configurable", {})
     graph_config: GraphConfig = configurable["graph_config"]
 
-    if state.get("final_error") is not None:
-        return "error_handler"
-    elif state["try_count"] > graph_config.max_gen_attempts or state["is_valid"]:
-        return "output_formatter"
+    if state["try_count"] > graph_config.max_gen_attempts or state["is_valid"]:
+        next = "output_formatter"
     else:
-        return "cypher_generator"
+        next = "cypher_generator"
+
+    return global_router(state, next)
 
 
 def schema_router(state: GraphState, config: RunnableConfig) -> str:
@@ -24,32 +25,31 @@ def schema_router(state: GraphState, config: RunnableConfig) -> str:
     graph_config: GraphConfig = configurable["graph_config"]
 
     if graph_config.ontology_endpoint is None:
-        return "entity_retriever"
+        next = "entity_retriever"
     else:
-        return "external_schema_fetcher"
+        next = "external_schema_fetcher"
+    return global_router(state, next)
 
 
-max_gen_ent = 0
-
-
-def cypher_generation_router(state: GraphState) -> str:
+def cypher_generation_router(state: GraphState, config: RunnableConfig) -> str:
     """Router for generation/entity_retriever node."""
-    if state.get("final_error") is not None:
-        return "error_handler"
+    configurable = config.get("configurable", {})
+    graph_config: GraphConfig = configurable["graph_config"]
+
+    entity_retr_count = state.get("entity_retr_count", 0)
 
     generated_cypher = state.get("generated_cypher")
     if generated_cypher is None:
         raise ValueError("Generated cypher is none")
 
-    global max_gen_ent
-    if max_gen_ent > 3:
-        return "db_validator"
-
-    if generated_cypher.discover_new_entities:
-        max_gen_ent += 1
-        return "entity_retriever"
+    if (
+        entity_retr_count > graph_config.max_entity_retr_attempts
+        or not generated_cypher.discover_new_entities
+    ):
+        next = "db_validator"
     else:
-        return "db_validator"
+        next = "entity_retriever"
+    return global_router(state, next)
 
 
 def global_router(state: GraphState, next_node: str) -> str:

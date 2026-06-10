@@ -1,8 +1,3 @@
-"""LangGraph single-node graph template.
-
-Returns a predefined response. Replace logic and configuration as needed.
-"""
-
 from __future__ import annotations
 
 from typing import Any
@@ -45,7 +40,7 @@ def build_graph() -> CompiledStateGraph[GraphState, Any]:
     builder.add_conditional_edges(
         "example_retriever",
         schema_router,
-        ["entity_retriever", "external_schema_fetcher"],
+        ["entity_retriever", "external_schema_fetcher", "error_handler"],
     )
     builder.add_conditional_edges(
         "external_schema_fetcher",
@@ -66,7 +61,7 @@ def build_graph() -> CompiledStateGraph[GraphState, Any]:
 
     builder.add_conditional_edges(
         "cypher_generator",
-        lambda state: cypher_generation_router(state),
+        cypher_generation_router,
         ["db_validator", "error_handler", "entity_retriever"],
     )
     builder.add_conditional_edges(

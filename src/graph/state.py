@@ -111,6 +111,7 @@ class GraphState(TypedDict):
     retrieved_examples: Examples | None
     retrieved_schema: DBSchema | str | None
     try_count: int
+    entity_retr_count: int
 
 
 def create_init_state(instruction: str) -> GraphState:
@@ -123,6 +124,7 @@ def create_init_state(instruction: str) -> GraphState:
     init_state = {
         "instruction": instruction,
         "try_count": 0,
+        "entity_retr_count": 0,
         "attempts": attempts,
         "entities_record": entities_record,
     }
