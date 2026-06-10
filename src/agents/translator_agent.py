@@ -67,7 +67,7 @@ class TranslatorAgent:
         )
 
         attempts_record = translate_request.attempts
-        if not attempts_record.attempts:
+        if not attempts_record.inner:
             human_message_prompt = HumanMessagePromptTemplate.from_template(
                 "Traduci: {{instruction}}\nDeduzioneProprietà: {{allow_data_properties_deduction}}",
                 template_format="jinja2",

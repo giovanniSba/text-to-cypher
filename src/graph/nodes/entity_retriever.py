@@ -19,13 +19,11 @@ def entity_retriever(state: GraphState, config: RunnableConfig) -> dict:
     match schema:
         case DBSchema():
             filtered_schema = [
-                ent for ent in schema.db_schema if ent.name in last_entities.inner
+                ent for ent in schema.inner if ent.name in last_entities.inner
             ]
-            text = f"Schema:\n{DBSchema(db_schema=filtered_schema)}\nAlreadyRetrieved: {already_retrieved_entities.inner}"  # search only for new detected entities
-            # text = f"Schema: \n{schema}"
+            text = f"Schema:\n{DBSchema(inner=filtered_schema)}\nAlreadyRetrieved: {already_retrieved_entities.inner}"  # search only for new detected entities
         case _:
             text = state["instruction"]
-    print(f"=================TESTO\n{text}")
 
     retrieved_entities = agent.retrieve_entities(text)
     filtered_entities = [
@@ -34,7 +32,6 @@ def entity_retriever(state: GraphState, config: RunnableConfig) -> dict:
         if ent not in already_retrieved_entities.inner
     ]  # filter entities to keep only the new ones
     entities_record.last_added_entities = Entities(inner=set(filtered_entities))
-    print(f"last added: {entities_record.last_added_entities.inner}")
     return {
         "entities_record": entities_record,
         "entity_retr_count": state.get("entity_retr_count", 0) + 1,

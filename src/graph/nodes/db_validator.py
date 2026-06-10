@@ -53,7 +53,7 @@ def db_validator(state: GraphState, config: RunnableConfig) -> dict:
         db_warnings=warnings,
     )
 
-    attempts_record.attempts.append(attempt)
+    attempts_record.inner.append(attempt)
 
     # if an error occurred to the last generated query, make another attempt anyway
     if last_generated_cypher.error is not None:

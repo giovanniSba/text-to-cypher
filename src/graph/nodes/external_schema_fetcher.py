@@ -21,7 +21,7 @@ def external_schema_fetcher(state: GraphState, config: RunnableConfig) -> dict:
     response.raise_for_status()
 
     if graph_config.enable_owl_parsing:
-        schema = DBSchema(db_schema=parse_owl_to_entities(response.text))
+        schema = DBSchema(inner=parse_owl_to_entities(response.text))
     else:
         schema = response.text
     return {"retrieved_schema": schema}

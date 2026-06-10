@@ -13,7 +13,7 @@ class QueryExample(BaseModel):
 class Examples(BaseModel):
     """Example list."""
 
-    examples: list[QueryExample] = Field(
+    inner: list[QueryExample] = Field(
         description="Una lista di esempi simili alla richiesta dell'utente."
     )
 
@@ -50,7 +50,7 @@ class DBEntity(BaseModel):
 class DBSchema(BaseModel):
     """List of DBEntity that represent the DB schema."""
 
-    db_schema: list[DBEntity] = Field(
+    inner: list[DBEntity] = Field(
         description="Schema del database espresso come lista di entità, proprietà e relazioni fra esse"
     )
 
@@ -92,7 +92,7 @@ class Attempt(BaseModel):
 class AttemptsRecord(BaseModel):
     """Attempt list."""
 
-    attempts: list[Attempt] = Field(
+    inner: list[Attempt] = Field(
         description="Tentativi di traduzione eseguiti per instruction"
     )
 
@@ -116,10 +116,10 @@ class GraphState(TypedDict):
 
 def create_init_state(instruction: str) -> GraphState:
     """Return the init state."""
-    attempts = AttemptsRecord(attempts=[])
+    attempts = AttemptsRecord(inner=[])
     entities_record = EntitiesRecord(
-        last_added_entities=Entities(inner=set(())),
-        retrieved_entities=Entities(inner=set(())),
+        last_added_entities=Entities(inner=set()),
+        retrieved_entities=Entities(inner=set()),
     )
     init_state = {
         "instruction": instruction,

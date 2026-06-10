@@ -9,7 +9,7 @@ def output_formatter(state: GraphState, config: RunnableConfig) -> dict:
     configurable = config.get("configurable", {})
     graph_config: GraphConfig = configurable["graph_config"]
 
-    last_attempt = state["attempts"].attempts[-1]
+    last_attempt = state["attempts"].inner[-1]
 
     try_count = state.get("try_count", 0)
     # if try_count > graph_config.max_gen_attempts:

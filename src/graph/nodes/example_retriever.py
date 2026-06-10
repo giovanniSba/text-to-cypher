@@ -25,5 +25,5 @@ def example_retriever(state: GraphState, config: RunnableConfig) -> dict:
 
         examples.append(example)
 
-    retrieved_examples = Examples(examples=examples)
+    retrieved_examples = Examples(inner=examples)
     return {"retrieved_examples": retrieved_examples}

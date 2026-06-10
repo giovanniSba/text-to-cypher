@@ -16,7 +16,7 @@ def schema_retriever(state: GraphState, config: RunnableConfig) -> dict:
     already_retrieved_schema = state.get("retrieved_schema")
     match already_retrieved_schema:
         case DBSchema():
-            updated_schema = already_retrieved_schema.db_schema
+            updated_schema = already_retrieved_schema.inner
         case _:
             pass
 
@@ -51,8 +51,7 @@ def schema_retriever(state: GraphState, config: RunnableConfig) -> dict:
         entities_record.retrieved_entities.inner | last_entity_added_updated.inner
     )  # update the retrieved entities
 
-    retrieved_schema = DBSchema(db_schema=updated_schema)
-    print(f"Nuove entità: {last_entity_added_updated.inner}")
+    retrieved_schema = DBSchema(inner=updated_schema)
     return {
         "retrieved_schema": retrieved_schema,
         "entities_record": entities_record,
