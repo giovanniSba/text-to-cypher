@@ -109,7 +109,7 @@ class GraphState(TypedDict):
     attempts: AttemptsRecord
     entities_record: EntitiesRecord
     retrieved_examples: Examples | None
-    retrieved_schema: DBSchema | str | None
+    retrieved_schema: DBSchema | None
     try_count: int
     entity_retr_count: int
 

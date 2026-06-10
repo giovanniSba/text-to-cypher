@@ -39,13 +39,13 @@ def build_graph() -> CompiledStateGraph[GraphState, Any]:
     builder.add_edge(START, "example_retriever")
     builder.add_conditional_edges(
         "example_retriever",
-        schema_router,
-        ["entity_retriever", "external_schema_fetcher", "error_handler"],
+        lambda state: global_router(state, "external_schema_fetcher"),
+        ["external_schema_fetcher", "error_handler"],
     )
     builder.add_conditional_edges(
         "external_schema_fetcher",
-        lambda state: global_router(state, "cypher_generator"),
-        ["cypher_generator", "error_handler"],
+        lambda state: global_router(state, "entity_retriever"),
+        ["entity_retriever", "error_handler"],
     )
 
     builder.add_conditional_edges(
