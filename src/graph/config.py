@@ -25,6 +25,10 @@ class GraphConfig(BaseModel):
         default=False,
         description="True if data properties in the schema can be deduced by the LLM.",
     )
+    allow_entity_discovering: bool = Field(
+        default=False,
+        description="True if the LLM can ask to expand the schema.",
+    )
 
     example_k_value: int = Field(
         default=5,

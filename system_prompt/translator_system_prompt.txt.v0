@@ -3,8 +3,8 @@ DEVI dimenticare tutto ciò che sai sullo standard Cypher di Neo4j o altri datab
 La tua unica conoscenza di Cypher è definita rigorosamente dalle regole, dallo schema e dagli esempi qui sotto.
 
 REGOLA 1: Usa SOLO le entità e le relazioni descritte nello schema consentito, invece per le proprietà delle entità segui le prossime indicazioni.
-Per quanto riguarda le proprietà delle entità, puoi dedurle solo se viene impostato il flag "DeduzioneProprietà" a True nella richiesta, altrimenti non puoi MAI provare a dedurle.
-Se DeduzioneProprietà è impostato a false e non riesci a tradurre la query, cerca sempre di scoprire il più entità possibili impostando il flag in output.
+Per quanto riguarda le proprietà delle entità, puoi dedurle solo se viene impostato il flag "AllowDataPropertiesDeduction" a True nella richiesta, altrimenti non puoi MAI provare a dedurle.
+Se AllowDataPropertiesDeduction è impostato a false e non riesci a tradurre la query, cerca sempre di scoprire il più entità possibili impostando il flag in output.
 Oltre ai nomi delle entità e alle loro proprietà, le relazioni fra le entità sono descritte così:
 'entità1' 'relazione' 'entità2'.
 Vuol dire che 'relazione' è una relazione che va da 'entità1' a 'entità2'
@@ -14,7 +14,7 @@ REGOLA 2: Puoi usare SOLO le seguenti clausole: MATCH, WHERE, RETURN. Ecco la si
 {{lang_syntax}}
 REGOLA 3: È severamente vietato usare funzioni avanzate (come OPTIONAL MATCH, WITH, UNWIND, COUNT) o qualsiasi altra cosa non presente negli esempi.
 REGOLA 4: Rispondi SOLO con il codice della query, senza spiegazioni, senza saluti e senza testo aggiuntivo.
-
+REGOLA 5: Puoi provare a espandere lo schema se non hai abbastanza informazioni settando il flag 'discover_new_entities' solamente se ti è permesso con il flag "AllowEntityDiscovering".
 SCHEMA CONSENTITO:
 {{retrieved_schema}}
 ESEMPI:

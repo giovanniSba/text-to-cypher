@@ -1,14 +1,25 @@
 import json
+import os
 
 from dotenv import load_dotenv
 from langchain_chroma import Chroma
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_ollama import OllamaEmbeddings
 
 load_dotenv()
 
-embeddings = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-2")
+OPEN_WEBUI_URL: str = os.environ.get("OPEN_WEBUI_URL", "http://192.168.1.40:11434")
+SCHEMA_COLLECTION_NAME: str = os.environ.get(
+    "SCHEMA_COLLECTION_NAME", "schema_collection"
+)
+SCHEMA_DB_PATH: str = os.environ.get("SCHEMA_DB_PATH", "./schema_db")
+EMBEDDINGS_MODEL_ID: str = os.environ.get("EMBEDDINGS_MODEL_ID", "")
 
-# Carica i dati
+embeddings = OllamaEmbeddings(
+    model=EMBEDDINGS_MODEL_ID,
+    base_url=OPEN_WEBUI_URL,
+)
+
+
 examples = []
 with open("schema_output.jsonl", encoding="utf-8") as f:
     for line in f:
@@ -26,17 +37,13 @@ with open("schema_output.jsonl", encoding="utf-8") as f:
             }
         )
 
-testi = [ex["text"] for ex in examples]
-metadati = [ex["metadata"] for ex in examples]
+texts = [ex["text"] for ex in examples]
+metadata = [ex["metadata"] for ex in examples]
 
-# CREA E SALVA IL DB SU DISCO
-# Specificando persist_directory, Chroma salverà i file fisicamente in quella cartella
 vectorstore = Chroma.from_texts(
-    collection_name="schema_collection",
-    texts=testi,
-    metadatas=metadati,
+    collection_name=SCHEMA_COLLECTION_NAME,
+    texts=texts,
+    metadatas=metadata,
     embedding=embeddings,
-    persist_directory="./ontology_db",  # Scegli il nome della cartella
+    persist_directory=SCHEMA_DB_PATH,
 )
-
-print("Database vettoriale creato e salvato con successo!")

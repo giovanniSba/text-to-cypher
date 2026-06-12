@@ -26,6 +26,7 @@ class TranslateRequest(BaseModel):
     attempts: AttemptsRecord
     lang_syntax: str | None
     allow_data_properties_deduction: bool = False
+    allow_entity_discovering: bool = False
 
 
 class TranslatorAgent:
@@ -69,12 +70,12 @@ class TranslatorAgent:
         attempts_record = translate_request.attempts
         if not attempts_record.inner:
             human_message_prompt = HumanMessagePromptTemplate.from_template(
-                "Traduci: {{instruction}}\nDeduzioneProprietà: {{allow_data_properties_deduction}}",
+                "Traduci: {{instruction}}\nAllowDataPropertiesDeduction: {{allow_data_properties_deduction}}\nAllowEntityDiscovery: {{allow_entity_discovering}}",
                 template_format="jinja2",
             )
         else:
             human_message_prompt = HumanMessagePromptTemplate.from_template(
-                "Riprova a tradurre '{{instruction}}', in precedenza hai prodotto i seguenti tentativi: \n {{attempts}}\n scrivi nella nota cos'hai cambiato\nDeduzioneProprietà: {{allow_data_properties_deduction}}",
+                "Riprova a tradurre '{{instruction}}', in precedenza hai prodotto i seguenti tentativi: \n {{attempts}}\n scrivi nella nota cos'hai cambiato\nAllowDataPropertiesDeduction: {{allow_data_properties_deduction}}\nAllowEntityDiscovery: {{allow_entity_discovering}}",
                 template_format="jinja2",
             )
 
