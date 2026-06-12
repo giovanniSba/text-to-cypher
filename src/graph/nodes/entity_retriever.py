@@ -32,6 +32,7 @@ def entity_retriever(state: GraphState, config: RunnableConfig) -> dict:
         if ent not in already_retrieved_entities.inner
     ]  # filter entities to keep only the new ones
     entities_record.last_added_entities = Entities(inner=set(filtered_entities))
+
     return {
         "entities_record": entities_record,
         "entity_retr_count": state.get("entity_retr_count", 0) + 1,
