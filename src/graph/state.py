@@ -50,7 +50,7 @@ class DBEntity(BaseModel):
 class DBSchema(BaseModel):
     """List of DBEntity that represent the DB schema."""
 
-    inner: list[DBEntity] = Field(
+    inner: dict = Field(
         description="Schema del database espresso come lista di entità, proprietà e relazioni fra esse"
     )
 
@@ -107,7 +107,7 @@ class GraphState(TypedDict):
     final_error: str | None
     final_note: str | None
     attempts: AttemptsRecord
-    entities_record: EntitiesRecord
+    entities_record: Entities | None
     retrieved_examples: Examples | None
     retrieved_schema: DBSchema | None
     try_count: int
@@ -117,16 +117,16 @@ class GraphState(TypedDict):
 def create_init_state(instruction: str) -> GraphState:
     """Return the init state."""
     attempts = AttemptsRecord(inner=[])
-    entities_record = EntitiesRecord(
-        last_added_entities=Entities(inner=set()),
-        retrieved_entities=Entities(inner=set()),
-    )
+    # entities_record = EntitiesRecord(
+    #     last_added_entities=Entities(inner=set()),
+    #     retrieved_entities=Entities(inner=set()),
+    # )
     init_state = {
         "instruction": instruction,
         "try_count": 0,
         "entity_retr_count": 0,
         "attempts": attempts,
-        "entities_record": entities_record,
+        # "entities_record": entities_record,
     }
 
     return cast(GraphState, init_state)

@@ -7,4 +7,5 @@ Persona conosce Materia
 Entità: Persona, Materia
 Tieni conto che la richiesta viene fatta su un grafo a database.
 Rispondi con SOLO e SOLTANTO con le classi coinvolte.
+Le classi coinvolte posso avere solo i nomi della lista "AllowedClass".
 NON ripetere le entità nella lista "AlreadyDiscovered"

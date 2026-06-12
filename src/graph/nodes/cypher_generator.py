@@ -4,7 +4,7 @@ from src.agents.translator_agent import (
     TranslateRequest,
 )
 from src.graph.config import AppDependencies, GraphConfig
-from src.graph.state import CypherTranslation, GraphState
+from src.graph.state import CypherTranslation, DBSchema, Entities, GraphState
 
 
 def cypher_generator(state: GraphState, config: RunnableConfig) -> dict:
@@ -18,14 +18,21 @@ def cypher_generator(state: GraphState, config: RunnableConfig) -> dict:
 
     examples = state.get("retrieved_examples")
     schema = state.get("retrieved_schema")
+    entities = state.get("entities_record")
 
-    if not examples or not schema:
+    if not examples or not schema or not entities:
         raise ValueError("examples or schema not retrieved.")
+
+    pruned_schema = {}
+
+    # keep only relevant part of the schema
+    for ent in entities:
+        pruned_schema[ent] = schema.inner[ent]
 
     translate_request = TranslateRequest(
         instruction=state.get("instruction", ""),
         retrieved_examples=examples,
-        retrieved_schema=schema,
+        retrieved_schema=DBSchema(inner=pruned_schema),
         attempts=state.get("attempts"),
         lang_syntax=None,
         allow_data_properties_deduction=graph_config.allow_data_properties_deduction,

@@ -123,4 +123,4 @@ def external_schema_fetcher(state: GraphState, config: RunnableConfig) -> dict:
     parsed = ont_loader.get_schema_relations()
 
     print(f"SCHEMA RELATIONS: {parsed}")
-    return {"retrieved_schema": DBSchema()}
+    return {"retrieved_schema": DBSchema(inner=parsed)}
